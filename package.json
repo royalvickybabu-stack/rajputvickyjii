@@ -1,3 +1,4 @@
+```json
 {
   "name": "lok-machaan",
   "version": "0.1.0",
@@ -13,12 +14,8 @@
     "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "better-sqlite3": "^13.0.3",
-    "next": "16.3.4",
-    "pg": "^8.23.0",
-    "prisma": "^7.10.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "@vercel/blob": "^2.0.0",
+    "better-sqlite3": "^13.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -32,3 +29,4 @@
     "typescript": "^5"
   }
 }
+```
