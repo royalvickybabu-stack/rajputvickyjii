@@ -1,7 +1,6 @@
+```ts
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +14,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // केवल image files की अनुमति
     const allowedTypes = [
       "image/jpeg",
       "image/png",
@@ -30,7 +28,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Maximum 5 MB
     const maxSize = 5 * 1024 * 1024;
 
     if (file.size > maxSize) {
@@ -40,9 +37,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     const extensionMap: Record<string, string> = {
       "image/jpeg": "jpg",
       "image/png": "png",
@@ -51,21 +45,15 @@ export async function POST(request: Request) {
     };
 
     const extension = extensionMap[file.type] || "jpg";
-    const fileName = `${randomUUID()}.${extension}`;
+    const fileName = `uploads/${crypto.randomUUID()}.${extension}`;
 
-    const uploadDirectory = path.join(process.cwd(), "public", "uploads");
-
-    await mkdir(uploadDirectory, { recursive: true });
-
-    const filePath = path.join(uploadDirectory, fileName);
-
-    await writeFile(filePath, buffer);
-
-    const imageUrl = `/uploads/${fileName}`;
+    const blob = await put(fileName, file, {
+      access: "public",
+    });
 
     return NextResponse.json({
       success: true,
-      url: imageUrl,
+      url: blob.url,
     });
   } catch (error) {
     console.error("Image upload error:", error);
@@ -76,3 +64,4 @@ export async function POST(request: Request) {
     );
   }
 }
+```
