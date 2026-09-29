@@ -1,0 +1,986 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+type News = {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  image: string | null;
+  category: string;
+  language: string;
+  isTrending: boolean;
+  published: boolean;
+  createdAt: string;
+};
+
+const hindiToEnglish: Record<string, string> = {
+  "अ": "a",
+  "आ": "aa",
+  "इ": "i",
+  "ई": "ee",
+  "उ": "u",
+  "ऊ": "oo",
+  "ए": "e",
+  "ऐ": "ai",
+  "ओ": "o",
+  "औ": "au",
+
+  "क": "k",
+  "ख": "kh",
+  "ग": "g",
+  "घ": "gh",
+  "ङ": "n",
+
+  "च": "ch",
+  "छ": "chh",
+  "ज": "j",
+  "झ": "jh",
+  "ञ": "n",
+
+  "ट": "t",
+  "ठ": "th",
+  "ड": "d",
+  "ढ": "dh",
+  "ण": "n",
+
+  "त": "t",
+  "थ": "th",
+  "द": "d",
+  "ध": "dh",
+  "न": "n",
+
+  "प": "p",
+  "फ": "ph",
+  "ब": "b",
+  "भ": "bh",
+  "म": "m",
+
+  "य": "y",
+  "र": "r",
+  "ल": "l",
+  "व": "v",
+
+  "श": "sh",
+  "ष": "sh",
+  "स": "s",
+  "ह": "h",
+
+  "क्ष": "ksh",
+  "त्र": "tr",
+  "ज्ञ": "gy",
+
+  "ा": "a",
+  "ि": "i",
+  "ी": "i",
+  "ु": "u",
+  "ू": "u",
+  "ृ": "ri",
+  "े": "e",
+  "ै": "ai",
+  "ो": "o",
+  "ौ": "au",
+
+  "ं": "n",
+  "ः": "h",
+  "ँ": "n",
+  "्": "",
+
+  "।": " ",
+};
+
+function generateEnglishSlug(text: string) {
+  let result = "";
+
+  for (const char of text) {
+    if (hindiToEnglish[char] !== undefined) {
+      result += hindiToEnglish[char];
+    } else if (/[a-zA-Z0-9]/.test(char)) {
+      result += char.toLowerCase();
+    } else if (char === " ") {
+      result += "-";
+    } else {
+      result += "-";
+    }
+  }
+
+  return result
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+}
+
+/* ================= CATEGORY LIST ================= */
+
+const categoryOptions = [
+  "ताज़ा खबरें",
+  "देश",
+  "राज्य",
+  "उत्तर प्रदेश",
+  "दुनिया",
+  "राजनीति",
+  "अपराध",
+  "व्यापार",
+  "खेल",
+  "मनोरंजन",
+  "टेक्नोलॉजी",
+  "शिक्षा",
+  "स्वास्थ्य",
+  "धर्म",
+  "लाइफस्टाइल",
+  "पॉडकास्ट",
+  "वीडियो",
+];
+
+export default function AdminPage() {
+  const [news, setNews] = useState<News[]>([]);
+
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [category, setCategory] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState("");
+  const [language, setLanguage] = useState("hi");
+  const [isTrending, setIsTrending] = useState(false);
+  const [published, setPublished] = useState(true);
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Filters
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [trendingFilter, setTrendingFilter] = useState("all");
+
+  async function loadNews() {
+    try {
+      const response = await fetch("/api/news?admin=true");
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setNews(data);
+      }
+    } catch (error) {
+      console.error("News load error:", error);
+    }
+  }
+
+  useEffect(() => {
+    loadNews();
+  }, []);
+
+  function resetForm() {
+    setTitle("");
+    setSlug("");
+    setCategory("");
+    setContent("");
+    setImage("");
+    setLanguage("hi");
+    setIsTrending(false);
+    setPublished(true);
+
+    setEditingId(null);
+
+    setSelectedFile(null);
+    setImagePreview("");
+  }
+
+  function handleTitleChange(value: string) {
+    setTitle(value);
+
+    if (!editingId) {
+      setSlug(generateEnglishSlug(value));
+    }
+  }
+
+  function handleFileChange(file: File | null) {
+    if (!file) {
+      setSelectedFile(null);
+      setImagePreview("");
+      return;
+    }
+
+    setSelectedFile(file);
+
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  }
+
+  async function uploadImage() {
+    if (!selectedFile) {
+      return image;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Image upload नहीं हुई");
+        return null;
+      }
+
+      setImage(data.url);
+      return data.url;
+    } catch (error) {
+      console.error(error);
+      alert("Image upload करने में समस्या हुई");
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+
+    if (!title.trim()) {
+      alert("Headline डालें");
+      return;
+    }
+
+    if (!category.trim()) {
+      alert("Category चुनें");
+      return;
+    }
+
+    if (!content.trim()) {
+      alert("News content डालें");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let finalImage = image;
+
+      if (selectedFile) {
+        finalImage = await uploadImage();
+
+        if (finalImage === null) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      const payload = {
+        title,
+        slug: slug || generateEnglishSlug(title),
+        category,
+        content,
+        image: finalImage || null,
+        language,
+        isTrending,
+        published,
+      };
+
+      const response = await fetch("/api/news", {
+        method: editingId ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          editingId
+            ? {
+                ...payload,
+                id: editingId,
+              }
+            : payload
+        ),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "News save नहीं हुई");
+        return;
+      }
+
+      alert(editingId ? "News update हो गई ✅" : "News save हो गई ✅");
+
+      resetForm();
+      await loadNews();
+    } catch (error) {
+      console.error(error);
+      alert("News save करने में समस्या हुई");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function editNews(item: News) {
+    setEditingId(item.id);
+
+    setTitle(item.title);
+    setSlug(item.slug);
+    setCategory(item.category);
+    setContent(item.content);
+    setImage(item.image || "");
+    setLanguage(item.language);
+    setIsTrending(item.isTrending);
+    setPublished(item.published);
+
+    setSelectedFile(null);
+    setImagePreview(item.image || "");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  async function deleteNews(id: number) {
+    const confirmDelete = window.confirm(
+      "क्या आप इस खबर को delete करना चाहते हैं?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/news", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Delete नहीं हुई");
+        return;
+      }
+
+      alert("News delete हो गई ✅");
+
+      await loadNews();
+    } catch (error) {
+      console.error(error);
+      alert("Delete करने में समस्या हुई");
+    }
+  }
+
+  async function togglePublished(item: News) {
+    try {
+      const response = await fetch("/api/news", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: item.id,
+          title: item.title,
+          slug: item.slug,
+          category: item.category,
+          content: item.content,
+          image: item.image,
+          language: item.language,
+          isTrending: item.isTrending,
+          published: !item.published,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Status update नहीं हुआ");
+        return;
+      }
+
+      await loadNews();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function toggleTrending(item: News) {
+    try {
+      const response = await fetch("/api/news", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: item.id,
+          title: item.title,
+          slug: item.slug,
+          category: item.category,
+          content: item.content,
+          image: item.image,
+          language: item.language,
+          isTrending: !item.isTrending,
+          published: item.published,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Trending status update नहीं हुआ");
+        return;
+      }
+
+      await loadNews();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const categories = Array.from(
+    new Set(
+      news
+        .map((item) => item.category)
+        .filter((item) => item && item.trim() !== "")
+    )
+  );
+
+  const filteredNews = news.filter((item) => {
+    const searchText = search.toLowerCase().trim();
+
+    const matchesSearch =
+      !searchText ||
+      item.title.toLowerCase().includes(searchText) ||
+      item.category.toLowerCase().includes(searchText) ||
+      item.slug.toLowerCase().includes(searchText);
+
+    const matchesCategory =
+      categoryFilter === "all" || item.category === categoryFilter;
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "published" && item.published) ||
+      (statusFilter === "unpublished" && !item.published);
+
+    const matchesTrending =
+      trendingFilter === "all" ||
+      (trendingFilter === "trending" && item.isTrending) ||
+      (trendingFilter === "normal" && !item.isTrending);
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesStatus &&
+      matchesTrending
+    );
+  });
+
+  return (
+    <main className="min-h-screen bg-gray-100 text-gray-900">
+
+      {/* ================= HEADER ================= */}
+      <header className="border-b bg-white shadow-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5">
+
+          <div>
+            <h1 className="text-3xl font-extrabold">
+              लोक मचान Admin
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+              News Management Panel
+            </p>
+          </div>
+
+          <Link
+            href="/"
+            className="rounded-lg bg-black px-5 py-2.5 font-semibold text-white transition hover:bg-gray-800"
+          >
+            ← Website
+          </Link>
+
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-7xl px-4 py-8">
+
+        {/* ================= ADD / EDIT NEWS ================= */}
+        <section className="rounded-2xl bg-white p-5 shadow md:p-7">
+
+          <div className="mb-6 flex flex-col justify-between gap-3 md:flex-row md:items-center">
+
+            <div>
+              <h2 className="text-2xl font-bold">
+                {editingId
+                  ? "✏️ खबर Edit करें"
+                  : "📝 नई खबर जोड़ें"}
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Headline डालते ही English slug अपने आप बनेगा।
+              </p>
+            </div>
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-lg border border-gray-300 px-4 py-2 font-semibold hover:bg-gray-100"
+              >
+                ✕ Edit Cancel
+              </button>
+            )}
+
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* HEADLINE */}
+            <div>
+              <label className="mb-2 block font-semibold">
+                Headline / खबर की हेडलाइन
+              </label>
+
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="उदाहरण: यूपी में विधानसभा चुनाव की तैयारी तेज"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+              />
+            </div>
+
+            {/* SLUG */}
+            <div>
+              <label className="mb-2 block font-semibold">
+                English Slug
+              </label>
+
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="up-me-vidhansabha-chunav-ki-taiyari-tez"
+                className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:border-red-500"
+              />
+
+              <p className="mt-1 text-xs text-gray-500">
+                URL: /news/{slug || "your-news-slug"}
+              </p>
+            </div>
+
+            {/* CATEGORY + LANGUAGE */}
+            <div className="grid gap-5 md:grid-cols-2">
+
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Category
+                </label>
+
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                >
+                  <option value="">
+                    Category चुनें
+                  </option>
+
+                  {categoryOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Language
+                </label>
+
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                >
+                  <option value="hi">Hindi</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* IMAGE */}
+            <div>
+              <label className="mb-2 block font-semibold">
+                News Image
+              </label>
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={(e) =>
+                  handleFileChange(e.target.files?.[0] || null)
+                }
+                className="w-full rounded-xl border border-gray-300 bg-white p-3"
+              />
+
+              <p className="mt-1 text-xs text-gray-500">
+                JPG, PNG, WEBP या GIF — maximum 5 MB
+              </p>
+
+              {imagePreview && (
+                <div className="mt-4">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="max-h-72 rounded-xl border object-contain"
+                  />
+                </div>
+              )}
+
+              {image && !selectedFile && (
+                <p className="mt-2 text-xs text-green-600">
+                  Existing image: {image}
+                </p>
+              )}
+            </div>
+
+            {/* CONTENT */}
+            <div>
+              <label className="mb-2 block font-semibold">
+                News Content
+              </label>
+
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="यहां पूरी खबर लिखें..."
+                rows={12}
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+              />
+            </div>
+
+            {/* OPTIONS */}
+            <div className="grid gap-4 rounded-xl bg-gray-50 p-4 md:grid-cols-2">
+
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={isTrending}
+                  onChange={(e) => setIsTrending(e.target.checked)}
+                  className="h-5 w-5"
+                />
+
+                <span className="font-semibold">
+                  🔥 Trending News
+                </span>
+              </label>
+
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                  className="h-5 w-5"
+                />
+
+                <span className="font-semibold">
+                  🟢 Publish News
+                </span>
+              </label>
+
+            </div>
+
+            {/* SAVE */}
+            <button
+              type="submit"
+              disabled={loading || uploading}
+              className="w-full rounded-xl bg-red-600 px-5 py-4 text-lg font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {uploading
+                ? "🖼️ Image Upload हो रही है..."
+                : loading
+                  ? "⏳ Save हो रहा है..."
+                  : editingId
+                    ? "💾 News Update करें"
+                    : "💾 News Save करें"}
+            </button>
+
+          </form>
+        </section>
+
+        {/* ================= MANAGE NEWS ================= */}
+        <section className="mt-8 rounded-2xl bg-white p-5 shadow md:p-7">
+
+          <div className="mb-6">
+
+            <h2 className="text-2xl font-bold">
+              📰 Manage News
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500">
+              यहां से सभी खबरों को search, filter, edit, publish और delete कर सकते हैं।
+            </p>
+
+          </div>
+
+          {/* SEARCH + FILTERS */}
+          <div className="rounded-2xl bg-gray-50 p-4">
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+              {/* SEARCH */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold">
+                  🔎 Search
+                </label>
+
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Headline / category / slug"
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                />
+              </div>
+
+              {/* CATEGORY FILTER */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold">
+                  Category
+                </label>
+
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                >
+                  <option value="all">
+                    सभी Categories
+                  </option>
+
+                  {categories.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* STATUS */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold">
+                  Publish Status
+                </label>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                >
+                  <option value="all">सभी</option>
+                  <option value="published">🟢 Published</option>
+                  <option value="unpublished">⚪ Unpublished</option>
+                </select>
+              </div>
+
+              {/* TRENDING */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold">
+                  Trending
+                </label>
+
+                <select
+                  value={trendingFilter}
+                  onChange={(e) => setTrendingFilter(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
+                >
+                  <option value="all">सभी</option>
+                  <option value="trending">🔥 Trending</option>
+                  <option value="normal">Normal News</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* CLEAR FILTERS */}
+            <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+
+              <p className="text-sm font-semibold text-gray-600">
+                {filteredNews.length} खबर
+                {filteredNews.length !== 1 ? "ें" : ""} मिली
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setCategoryFilter("all");
+                  setStatusFilter("all");
+                  setTrendingFilter("all");
+                }}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-100"
+              >
+                ✕ सभी Filters हटाएं
+              </button>
+
+            </div>
+          </div>
+
+          {/* NEWS LIST */}
+          <div className="mt-6 space-y-4">
+
+            {filteredNews.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-gray-500">
+                कोई खबर नहीं मिली।
+              </div>
+            ) : (
+              filteredNews.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-gray-200 p-4 transition hover:shadow-md"
+                >
+
+                  <div className="flex flex-col gap-5 lg:flex-row">
+
+                    {/* IMAGE */}
+                    <div className="shrink-0">
+
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="h-32 w-full rounded-xl object-cover sm:w-48"
+                        />
+                      ) : (
+                        <div className="flex h-32 w-full items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400 sm:w-48">
+                          No Image
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* DETAILS */}
+                    <div className="min-w-0 flex-1">
+
+                      <div className="flex flex-wrap gap-2">
+
+                        <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+                          {item.category}
+                        </span>
+
+                        {item.published ? (
+                          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                            🟢 Published
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-700">
+                            ⚪ Unpublished
+                          </span>
+                        )}
+
+                        {item.isTrending && (
+                          <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                            🔥 Trending
+                          </span>
+                        )}
+
+                      </div>
+
+                      <h3 className="mt-3 text-xl font-bold">
+                        {item.title}
+                      </h3>
+
+                      <p className="mt-1 break-all text-xs text-gray-400">
+                        /news/{item.slug}
+                      </p>
+
+                      <p className="mt-3 line-clamp-2 text-sm text-gray-600">
+                        {item.content}
+                      </p>
+
+                      {/* BUTTONS */}
+                      <div className="mt-4 flex flex-wrap gap-2">
+
+                        <Link
+                          href={`/news/${item.slug}`}
+                          target="_blank"
+                          className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+                        >
+                          👁️ देखें
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => editNews(item)}
+                          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                        >
+                          ✏️ Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => togglePublished(item)}
+                          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                        >
+                          {item.published
+                            ? "⚪ Unpublish"
+                            : "🟢 Publish"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => toggleTrending(item)}
+                          className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+                        >
+                          {item.isTrending
+                            ? "🔥 Trending हटाएं"
+                            : "🔥 Trending"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => deleteNews(item.id)}
+                          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                        >
+                          🗑️ Delete
+                        </button>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+
+          </div>
+        </section>
+      </div>
+
+      {/* ================= FOOTER ================= */}
+      <footer className="mt-10 bg-black px-4 py-8 text-center text-white">
+
+        <h2 className="text-2xl font-bold text-red-500">
+          लोक मचान
+        </h2>
+
+        <p className="mt-2 text-sm text-gray-400">
+          आपकी आवाज़, हमारा मंच
+        </p>
+
+        <p className="mt-4 text-xs text-gray-500">
+          © 2026 Lok Machan. All Rights Reserved.
+        </p>
+
+      </footer>
+
+    </main>
+  );
+}
