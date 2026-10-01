@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -28,43 +28,31 @@ export default function NotificationButton() {
       setMessage("");
 
       if (!("Notification" in window)) {
-        setMessage(
-          "आपका browser notifications support नहीं करता।"
-        );
+        setMessage("आपका browser notifications support नहीं करता।");
         return;
       }
 
       if (!("serviceWorker" in navigator)) {
-        setMessage(
-          "आपका browser service worker support नहीं करता।"
-        );
+        setMessage("आपका browser service worker support नहीं करता।");
         return;
       }
 
-      const permission =
-        await Notification.requestPermission();
+      const permission = await Notification.requestPermission();
 
       if (permission !== "granted") {
-        setMessage(
-          "Notifications की permission नहीं मिली।"
-        );
+        setMessage("Notifications की permission नहीं मिली।");
         return;
       }
 
-      // Service Worker register करें
       await navigator.serviceWorker.register("/sw.js");
 
-      // Active Service Worker आने तक wait करें
-      const registration =
-        await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready;
 
       const publicKey =
         process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
       if (!publicKey) {
-        setMessage(
-          "Notification key configured नहीं है।"
-        );
+        setMessage("Notification key configured नहीं है।");
         return;
       }
 
@@ -79,24 +67,19 @@ export default function NotificationButton() {
             urlBase64ToUint8Array(publicKey),
         }));
 
-      const subscriptionJson =
-        subscription.toJSON();
+      const subscriptionJson = subscription.toJSON();
 
-      const response = await fetch(
-        "/api/notifications",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            endpoint: subscriptionJson.endpoint,
-            p256dh:
-              subscriptionJson.keys?.p256dh,
-            auth: subscriptionJson.keys?.auth,
-          }),
-        }
-      );
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          endpoint: subscriptionJson.endpoint,
+          p256dh: subscriptionJson.keys?.p256dh,
+          auth: subscriptionJson.keys?.auth,
+        }),
+      });
 
       const data = await response.json();
 
@@ -108,14 +91,9 @@ export default function NotificationButton() {
         return;
       }
 
-      setMessage(
-        "🔔 Notifications चालू हो गए हैं।"
-      );
+      setMessage("🔔 Notifications चालू हो गई हैं।");
     } catch (error) {
-      console.error(
-        "Notification setup error:",
-        error
-      );
+      console.error("Notification setup error:", error);
 
       setMessage(
         "Notifications चालू करने में समस्या हुई।"

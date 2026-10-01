@@ -2,6 +2,21 @@
 
 const PLAYLIST_ID = "PLDQg99UPqpXQ9INDP3H86aSJiJz6KaVvy";
 
+type YouTubePlaylistItem = {
+  contentDetails?: {
+    videoId?: string;
+  };
+  snippet?: {
+    title?: string;
+    publishedAt?: string;
+    thumbnails?: {
+      high?: { url?: string };
+      medium?: { url?: string };
+      default?: { url?: string };
+    };
+  };
+};
+
 export async function GET() {
   try {
     const apiKey = process.env.YOUTUBE_API_KEY;
@@ -40,7 +55,7 @@ export async function GET() {
     }
 
     const videos = (data.items || [])
-      .map((item: any) => {
+      .map((item: YouTubePlaylistItem) => {
         const videoId = item.contentDetails?.videoId;
 
         if (!videoId) {
@@ -71,3 +86,4 @@ export async function GET() {
     );
   }
 }
+

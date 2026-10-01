@@ -1,22 +1,22 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 const categoryMap: Record<string, string> = {
-  "taza-khabrein": "ताज़ा खबरें",
-  desh: "देश",
-  rajya: "राज्य",
-  duniya: "दुनिया",
-  "राजनीति": "राजनीति",
-  apradh: "अपराध",
-  vyapar: "व्यापार",
-  khel: "खेल",
-  manoranjan: "मनोरंजन",
-  technology: "टेक्नोलॉजी",
-  podcast: "🎙 पॉडकास्ट",
-  video: "वीडियो",
+  "taza-khabrein": "à¤¤à¤¾à¤œà¤¼à¤¾ à¤–à¤¬à¤°à¥‡à¤‚",
+  desh: "à¤¦à¥‡à¤¶",
+  rajya: "à¤°à¤¾à¤œà¥à¤¯",
+  duniya: "à¤¦à¥à¤¨à¤¿à¤¯à¤¾",
+  "à¤°à¤¾à¤œà¤¨à¥€à¤¤à¤¿": "à¤°à¤¾à¤œà¤¨à¥€à¤¤à¤¿",
+  apradh: "à¤…à¤ªà¤°à¤¾à¤§",
+  vyapar: "à¤µà¥à¤¯à¤¾à¤ªà¤¾à¤°",
+  khel: "à¤–à¥‡à¤²",
+  manoranjan: "à¤®à¤¨à¥‹à¤°à¤‚à¤œà¤¨",
+  technology: "à¤Ÿà¥‡à¤•à¥à¤¨à¥‹à¤²à¥‰à¤œà¥€",
+  podcast: "ðŸŽ™ à¤ªà¥‰à¤¡à¤•à¤¾à¤¸à¥à¤Ÿ",
+  video: "à¤µà¥€à¤¡à¤¿à¤¯à¥‹",
 };
 
 type News = {
@@ -88,12 +88,11 @@ export default function CategoryPage() {
   }, [decodedCategory, categoryName]);
 
   useEffect(() => {
-    if (decodedCategory !== "podcast") {
-      setPodcasts([]);
-      return;
-    }
-
     async function loadPodcasts() {
+      if (decodedCategory !== "podcast") {
+        setPodcasts([]);
+        return;
+      }
       try {
         setPodcastLoading(true);
 
@@ -125,7 +124,7 @@ export default function CategoryPage() {
           href="/"
           className="mb-6 inline-block font-medium text-red-600 hover:underline"
         >
-          ← होम पर वापस जाएँ
+          â† à¤¹à¥‹à¤® à¤ªà¤° à¤µà¤¾à¤ªà¤¸ à¤œà¤¾à¤à¤
         </Link>
 
         {/* CATEGORY HEADING */}
@@ -141,11 +140,11 @@ export default function CategoryPage() {
 
               <div>
                 <h2 className="text-2xl font-extrabold text-black">
-                  🎙 हमारे नवीनतम पॉडकास्ट
+                  ðŸŽ™ à¤¹à¤®à¤¾à¤°à¥‡ à¤¨à¤µà¥€à¤¨à¤¤à¤® à¤ªà¥‰à¤¡à¤•à¤¾à¤¸à¥à¤Ÿ
                 </h2>
 
                 <p className="mt-2 font-medium text-black">
-                  Lok Machan के YouTube चैनल से नवीनतम वीडियो
+                  Lok Machan à¤•à¥‡ YouTube à¤šà¥ˆà¤¨à¤² à¤¸à¥‡ à¤¨à¤µà¥€à¤¨à¤¤à¤® à¤µà¥€à¤¡à¤¿à¤¯à¥‹
                 </p>
               </div>
 
@@ -155,17 +154,17 @@ export default function CategoryPage() {
                 rel="noopener noreferrer"
                 className="inline-flex w-fit items-center rounded-lg bg-red-600 px-5 py-3 font-bold text-white transition hover:bg-red-700"
               >
-                ▶ Visit for More
+                â–¶ Visit for More
               </a>
             </div>
 
             {podcastLoading ? (
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
-                पॉडकास्ट लोड हो रहे हैं...
+                à¤ªà¥‰à¤¡à¤•à¤¾à¤¸à¥à¤Ÿ à¤²à¥‹à¤¡ à¤¹à¥‹ à¤°à¤¹à¥‡ à¤¹à¥ˆà¤‚...
               </div>
             ) : podcasts.length === 0 ? (
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
-                अभी कोई पॉडकास्ट उपलब्ध नहीं है।
+                à¤…à¤­à¥€ à¤•à¥‹à¤ˆ à¤ªà¥‰à¤¡à¤•à¤¾à¤¸à¥à¤Ÿ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -189,7 +188,7 @@ export default function CategoryPage() {
                       <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/20">
 
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-xl text-white opacity-0 shadow-lg transition group-hover:opacity-100">
-                          ▶
+                          â–¶
                         </div>
 
                       </div>
@@ -226,11 +225,11 @@ export default function CategoryPage() {
           <>
             {loading ? (
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
-                खबरें लोड हो रही हैं...
+                à¤–à¤¬à¤°à¥‡à¤‚ à¤²à¥‹à¤¡ à¤¹à¥‹ à¤°à¤¹à¥€ à¤¹à¥ˆà¤‚...
               </div>
             ) : news.length === 0 ? (
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
-                इस कैटेगरी में अभी कोई खबर उपलब्ध नहीं है।
+                à¤‡à¤¸ à¤•à¥ˆà¤Ÿà¥‡à¤—à¤°à¥€ à¤®à¥‡à¤‚ à¤…à¤­à¥€ à¤•à¥‹à¤ˆ à¤–à¤¬à¤° à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -274,4 +273,6 @@ export default function CategoryPage() {
     </main>
   );
 }
+
+
 

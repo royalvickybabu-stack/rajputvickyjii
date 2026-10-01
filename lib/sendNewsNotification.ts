@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { webpush } from "@/lib/webpush";
 
 export async function sendNewsNotification(
@@ -9,7 +9,7 @@ export async function sendNewsNotification(
     await prisma.notificationSubscription.findMany();
 
   const notificationPayload = JSON.stringify({
-    title: "🔔 लोक मचान पर नई खबर",
+    title: "ðŸ”” à¤²à¥‹à¤• à¤®à¤šà¤¾à¤¨ à¤ªà¤° à¤¨à¤ˆ à¤–à¤¬à¤°",
     body: title,
     url: `/news/${slug}`,
   });
@@ -26,15 +26,23 @@ export async function sendNewsNotification(
         },
         notificationPayload
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const statusCode =
+        error &&
+        typeof error === "object" &&
+        "statusCode" in error &&
+        typeof error.statusCode === "number"
+          ? error.statusCode
+          : undefined;
+
       console.error(
         "Push notification error:",
-        error?.statusCode || error
+        statusCode || error
       );
 
       if (
-        error?.statusCode === 404 ||
-        error?.statusCode === 410
+        statusCode === 404 ||
+        statusCode === 410
       ) {
         await prisma.notificationSubscription.delete({
           where: {
@@ -45,3 +53,4 @@ export async function sendNewsNotification(
     }
   }
 }
+
