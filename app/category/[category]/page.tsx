@@ -1,121 +1,277 @@
-import { prisma } from "@/lib/prisma";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+"use client";
 
-type PageProps = {
-  params: Promise<{
-    category: string;
-  }>;
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
+const categoryMap: Record<string, string> = {
+  "taza-khabrein": "ताज़ा खबरें",
+  desh: "देश",
+  rajya: "राज्य",
+  duniya: "दुनिया",
+  "राजनीति": "राजनीति",
+  apradh: "अपराध",
+  vyapar: "व्यापार",
+  khel: "खेल",
+  manoranjan: "मनोरंजन",
+  technology: "टेक्नोलॉजी",
+  podcast: "🎙 पॉडकास्ट",
+  video: "वीडियो",
 };
 
-export default async function CategoryPage({ params }: PageProps) {
-  const { category } = await params;
+type News = {
+  id: number;
+  title: string;
+  slug: string;
+  image: string | null;
+  category: string;
+};
 
-  const news = await prisma.news.findMany({
-    where: {
-      category: decodeURIComponent(category),
-      published: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+type PodcastVideo = {
+  id: string;
+  title: string;
+  thumbnail: string;
+  publishedAt: string;
+  url: string;
+};
 
-  if (news.length === 0) {
-    notFound();
-  }
+export default function CategoryPage() {
+  const params = useParams();
+
+  const [news, setNews] = useState<News[]>([]);
+  const [podcasts, setPodcasts] = useState<PodcastVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [podcastLoading, setPodcastLoading] = useState(false);
+
+  const rawCategory = params.category;
+
+  const category = Array.isArray(rawCategory)
+    ? rawCategory[0]
+    : String(rawCategory || "");
+
+  const decodedCategory = decodeURIComponent(category);
+
+  const categoryName =
+    categoryMap[decodedCategory] || decodedCategory;
+
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        setLoading(true);
+
+        const response = await fetch("/api/news");
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          setNews([]);
+          return;
+        }
+
+        const filtered =
+          decodedCategory === "taza-khabrein"
+            ? data
+            : data.filter(
+                (item: News) =>
+                  item.category?.trim() === categoryName.trim()
+              );
+
+        setNews(filtered);
+      } catch (error) {
+        console.error("Category news load error:", error);
+        setNews([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadNews();
+  }, [decodedCategory, categoryName]);
+
+  useEffect(() => {
+    if (decodedCategory !== "podcast") {
+      setPodcasts([]);
+      return;
+    }
+
+    async function loadPodcasts() {
+      try {
+        setPodcastLoading(true);
+
+        const response = await fetch("/api/youtube/podcasts");
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          setPodcasts([]);
+          return;
+        }
+
+        setPodcasts(data.slice(0, 6));
+      } catch (error) {
+        console.error("Podcast load error:", error);
+        setPodcasts([]);
+      } finally {
+        setPodcastLoading(false);
+      }
+    }
+
+    loadPodcasts();
+  }, [decodedCategory]);
 
   return (
-    <main className="min-h-screen bg-gray-100 text-gray-900">
+    <main className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-4 py-10">
 
-      {/* HEADER */}
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4">
-          <Link href="/">
-            <img
-              src="/logo.png.png"
-              alt="लोक मचान"
-              className="h-16 w-auto object-contain"
-            />
-          </Link>
+        <Link
+          href="/"
+          className="mb-6 inline-block font-medium text-red-600 hover:underline"
+        >
+          ← होम पर वापस जाएँ
+        </Link>
 
-          <div>
-            <Link href="/">
-              <h1 className="text-2xl font-extrabold text-black">
-                लोक मचान
-              </h1>
-            </Link>
-
-            <p className="text-sm text-gray-500">
-              आपकी आवाज़, हमारा मंच
-            </p>
-          </div>
-        </div>
-      </header>
-
-      {/* CATEGORY TITLE */}
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <h1 className="border-l-4 border-red-600 pl-3 text-3xl font-bold">
-          {decodeURIComponent(category)} की खबरें
+        {/* CATEGORY HEADING */}
+        <h1 className="mb-8 text-3xl font-extrabold text-black">
+          {categoryName}
         </h1>
 
-        {/* NEWS GRID */}
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* ================= PODCAST CATEGORY ================= */}
+        {decodedCategory === "podcast" ? (
+          <section>
 
-          {news.map((item) => (
-            <Link
-              key={item.id}
-              href={`/news/${item.slug}`}
-              className="overflow-hidden rounded-xl bg-white shadow transition hover:shadow-lg"
-            >
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-52 w-full object-cover"
-                />
-              )}
+            <div className="mb-8 flex flex-col gap-4 rounded-xl bg-white p-6 shadow sm:flex-row sm:items-center sm:justify-between">
 
-              <div className="p-5">
-
-                <div className="text-sm font-bold text-red-600">
-                  {item.category}
-                </div>
-
-                <h2 className="mt-2 text-xl font-bold leading-tight">
-                  {item.title}
+              <div>
+                <h2 className="text-2xl font-extrabold text-black">
+                  🎙 हमारे नवीनतम पॉडकास्ट
                 </h2>
 
-                <p className="mt-3 line-clamp-3 text-gray-600">
-                  {item.content}
+                <p className="mt-2 font-medium text-black">
+                  Lok Machan के YouTube चैनल से नवीनतम वीडियो
                 </p>
+              </div>
 
-                <div className="mt-4 text-sm text-gray-500">
-                  {new Date(item.createdAt).toLocaleDateString("hi-IN")}
-                </div>
+              <a
+                href="https://youtube.com/@lokmachan?si=RMDX_hmXhDGxFGXB"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-fit items-center rounded-lg bg-red-600 px-5 py-3 font-bold text-white transition hover:bg-red-700"
+              >
+                ▶ Visit for More
+              </a>
+            </div>
+
+            {podcastLoading ? (
+              <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
+                पॉडकास्ट लोड हो रहे हैं...
+              </div>
+            ) : podcasts.length === 0 ? (
+              <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
+                अभी कोई पॉडकास्ट उपलब्ध नहीं है।
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+                {podcasts.map((video) => (
+                  <a
+                    key={video.id}
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group overflow-hidden rounded-xl bg-white shadow transition hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    <div className="relative overflow-hidden">
+
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title}
+                        className="h-52 w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/20">
+
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-xl text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+                          ▶
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+
+                      <h2 className="line-clamp-2 text-xl font-extrabold leading-snug text-black group-hover:text-red-600">
+                        {video.title}
+                      </h2>
+
+                      <p className="mt-3 text-sm font-medium text-black">
+                        {new Date(
+                          video.publishedAt
+                        ).toLocaleDateString("hi-IN", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+
+                    </div>
+                  </a>
+                ))}
 
               </div>
-            </Link>
-          ))}
+            )}
 
-        </div>
+          </section>
+        ) : (
+
+          /* ================= NORMAL NEWS CATEGORIES ================= */
+
+          <>
+            {loading ? (
+              <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
+                खबरें लोड हो रही हैं...
+              </div>
+            ) : news.length === 0 ? (
+              <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
+                इस कैटेगरी में अभी कोई खबर उपलब्ध नहीं है।
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+                {news.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={"/news/" + item.slug}
+                    className="overflow-hidden rounded-lg bg-white shadow transition hover:shadow-lg"
+                  >
+
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="h-52 w-full object-cover"
+                      />
+                    )}
+
+                    <div className="p-5">
+
+                      <p className="mb-2 text-sm font-bold text-red-600">
+                        {item.category}
+                      </p>
+
+                      <h2 className="text-xl font-extrabold text-black">
+                        {item.title}
+                      </h2>
+
+                    </div>
+
+                  </Link>
+                ))}
+
+              </div>
+            )}
+          </>
+        )}
+
       </div>
-
-      {/* FOOTER */}
-      <footer className="mt-10 bg-black px-4 py-8 text-center text-white">
-        <h2 className="text-2xl font-bold text-red-500">
-          लोक मचान
-        </h2>
-
-        <p className="mt-2 text-sm text-gray-400">
-          आपकी आवाज़, समाज की ताकत
-        </p>
-
-        <p className="mt-4 text-xs text-gray-500">
-          © 2025 Lok Machan. All Rights Reserved.
-        </p>
-      </footer>
-
     </main>
   );
 }
+

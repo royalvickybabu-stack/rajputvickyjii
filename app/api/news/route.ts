@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendNewsNotification } from "@/lib/sendNewsNotification";
 
 export async function GET(request: Request) {
   try {
@@ -26,25 +27,56 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    if (!body.title || !body.slug || !body.content) {
+    const title = body.title?.trim() || "";
+    const slug = body.slug?.trim() || "";
+    const content = body.content?.trim() || "";
+    const shortContent = body.shortContent?.trim() || "";
+
+    if (!title || !slug) {
       return NextResponse.json(
-        { error: "Title, slug और content जरूरी हैं।" },
+        { error: "Title और slug जरूरी हैं।" },
+        { status: 400 }
+      );
+    }
+
+    if (!content && !shortContent) {
+      return NextResponse.json(
+        {
+          error:
+            "या तो Full News Content या News in 60 Words जरूरी है।",
+        },
         { status: 400 }
       );
     }
 
     const news = await prisma.news.create({
       data: {
-        title: body.title,
-        slug: body.slug,
-        content: body.content,
+        title,
+        slug,
+        content,
+        shortContent: shortContent || null,
         image: body.image || null,
         category: body.category || "अन्य",
         language: body.language || "hi",
-        isTrending: body.isTrending || false,
+        isTrending: body.isTrending ?? false,
         published: body.published ?? true,
       },
     });
+
+    // केवल published news के लिए notification भेजें
+    if (news.published) {
+      try {
+        await sendNewsNotification(
+          news.title,
+          news.slug
+        );
+      } catch (notificationError) {
+        console.error(
+          "News notification error:",
+          notificationError
+        );
+      }
+    }
 
     return NextResponse.json(news, { status: 201 });
   } catch (error) {
@@ -68,14 +100,37 @@ export async function PUT(request: Request) {
       );
     }
 
+    const title = body.title?.trim() || "";
+    const slug = body.slug?.trim() || "";
+    const content = body.content?.trim() || "";
+    const shortContent = body.shortContent?.trim() || "";
+
+    if (!title || !slug) {
+      return NextResponse.json(
+        { error: "Title और slug जरूरी हैं।" },
+        { status: 400 }
+      );
+    }
+
+    if (!content && !shortContent) {
+      return NextResponse.json(
+        {
+          error:
+            "या तो Full News Content या News in 60 Words जरूरी है।",
+        },
+        { status: 400 }
+      );
+    }
+
     const news = await prisma.news.update({
       where: {
         id: Number(body.id),
       },
       data: {
-        title: body.title,
-        slug: body.slug,
-        content: body.content,
+        title,
+        slug,
+        content,
+        shortContent: shortContent || null,
         image: body.image || null,
         category: body.category || "अन्य",
         language: body.language || "hi",
