@@ -51,26 +51,32 @@ export default function FollowPage() {
               ▶ YouTube पर हमें फ़ॉलो करें
             </a>
 
-            <button
-              type="button"
+            <a
+              href="https://x.com/lokmachan?s=11"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block w-full rounded-lg bg-black px-4 py-3 font-bold text-white hover:bg-gray-800"
             >
               𝕏 हमें फ़ॉलो करें
-            </button>
+            </a>
 
-            <button
-              type="button"
+            <a
+              href="https://www.instagram.com/lokmachan?stkn=b3Yyb2hhMWVjb2hx&utm_source=qr"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block w-full rounded-lg bg-pink-600 px-4 py-3 font-bold text-white hover:bg-pink-700"
             >
               ◎ Instagram पर हमें फ़ॉलो करें
-            </button>
+            </a>
 
-            <button
-              type="button"
+            <a
+              href="https://www.facebook.com/share/1AxdfUbAvJ/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
             >
               f Facebook पर हमें फ़ॉलो करें
-            </button>
+            </a>
           </div>
 
           <div className="mt-8">
@@ -86,3 +92,9 @@ export default function FollowPage() {
     </main>
   );
 }
+
+
+
+
+
+
