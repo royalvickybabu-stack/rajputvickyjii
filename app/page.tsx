@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -19,7 +19,6 @@ type News = {
 };
 
 export default function Home() {
-  const [language, setLanguage] = useState<"hi" | "en">("hi");
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -258,32 +257,6 @@ export default function Home() {
             मुख्य खबरें
           </h2>
 
-          <div className="flex items-center gap-2 rounded-lg bg-white p-1 shadow">
-
-            <button
-              onClick={() => setLanguage("hi")}
-              className={`rounded px-3 py-1 text-sm ${
-                language === "hi"
-                  ? "bg-red-600 text-white"
-                  : "text-gray-600"
-              }`}
-            >
-              हिंदी
-            </button>
-
-            <button
-              onClick={() => setLanguage("en")}
-              className={`rounded px-3 py-1 text-sm ${
-                language === "en"
-                  ? "bg-red-600 text-white"
-                  : "text-gray-600"
-              }`}
-            >
-              English
-            </button>
-
-          </div>
-
         </div>
 
         {/* NEWS */}
@@ -329,9 +302,7 @@ export default function Home() {
                   </span>
 
                   <h3 className="mt-2 text-2xl font-bold leading-tight">
-                    {language === "hi"
-                      ? mainNews.title
-                      : "Big news update from Lok Machaan"}
+                    {mainNews.title}
                   </h3>
 
                   <p className="mt-3 line-clamp-2 text-gray-600">
@@ -376,9 +347,7 @@ export default function Home() {
                   </span>
 
                   <h3 className="mt-1 font-bold">
-                    {language === "hi"
-                      ? item.title
-                      : "Latest news update"}
+                    {item.title}
                   </h3>
 
                 </Link>
@@ -410,9 +379,7 @@ export default function Home() {
               >
 
                 <h3 className="font-semibold">
-                  {language === "hi"
-                    ? item.title
-                    : "Latest news update"}
+                  {item.title}
                 </h3>
 
                 <span className="whitespace-nowrap text-sm text-gray-500">
@@ -472,9 +439,7 @@ export default function Home() {
                     </span>
 
                     <h3 className="mt-2 text-lg font-bold leading-snug">
-                      {language === "hi"
-                        ? item.title
-                        : "Latest news update"}
+                      {item.title}
                     </h3>
 
                     <p className="mt-3 line-clamp-4 text-sm leading-6 text-gray-600">
