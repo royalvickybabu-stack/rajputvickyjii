@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import RichTextEditor from "@/components/RichTextEditor";
 
 type News = {
   id: number;
@@ -18,67 +19,65 @@ type News = {
 };
 
 const hindiToEnglish: Record<string, string> = {
-  "à¤…": "a",
-  "à¤†": "aa",
-  "à¤‡": "i",
-  "à¤ˆ": "ee",
-  "à¤‰": "u",
-  "à¤Š": "oo",
-  "à¤": "e",
-  "à¤": "ai",
-  "à¤“": "o",
-  "à¤”": "au",
-  "à¤•": "k",
-  "à¤–": "kh",
-  "à¤—": "g",
-  "à¤˜": "gh",
-  "à¤™": "n",
-  "à¤š": "ch",
-  "à¤›": "chh",
-  "à¤œ": "j",
-  "à¤": "jh",
-  "à¤ž": "n",
-  "à¤Ÿ": "t",
-  "à¤ ": "th",
-  "à¤¡": "d",
-  "à¤¢": "dh",
-  "à¤£": "n",
-  "à¤¤": "t",
-  "à¤¥": "th",
-  "à¤¦": "d",
-  "à¤§": "dh",
-  "à¤¨": "n",
-  "à¤ª": "p",
-  "à¤«": "ph",
-  "à¤¬": "b",
-  "à¤­": "bh",
-  "à¤®": "m",
-  "à¤¯": "y",
-  "à¤°": "r",
-  "à¤²": "l",
-  "à¤µ": "v",
-  "à¤¶": "sh",
-  "à¤·": "sh",
-  "à¤¸": "s",
-  "à¤¹": "h",
-  "à¤•à¥à¤·": "ksh",
-  "à¤¤à¥à¤°": "tr",
-  "à¤œà¥à¤ž": "gy",
-  "à¤¾": "a",
-  "à¤¿": "i",
-  "à¥€": "i",
-  "à¥": "u",
-  "à¥‚": "u",
-  "à¥ƒ": "ri",
-  "à¥‡": "e",
-  "à¥ˆ": "ai",
-  "à¥‹": "o",
-  "à¥Œ": "au",
-  "à¤‚": "n",
-  "à¤ƒ": "h",
-  "à¤": "n",
-  "à¥": "",
-  "à¥¤": " ",
+  "अ": "a",
+  "आ": "aa",
+  "इ": "i",
+  "ई": "ee",
+  "उ": "u",
+  "ऊ": "oo",
+  "ए": "e",
+  "ऐ": "ai",
+  "ओ": "o",
+  "औ": "au",
+  "क": "k",
+  "ख": "kh",
+  "ग": "g",
+  "घ": "gh",
+  "च": "ch",
+  "छ": "chh",
+  "ज": "j",
+  "झ": "jh",
+  "ट": "t",
+  "ठ": "th",
+  "ड": "d",
+  "ढ": "dh",
+  "ण": "n",
+  "त": "t",
+  "थ": "th",
+  "द": "d",
+  "ध": "dh",
+  "न": "n",
+  "प": "p",
+  "फ": "ph",
+  "ब": "b",
+  "भ": "bh",
+  "म": "m",
+  "य": "y",
+  "र": "r",
+  "ल": "l",
+  "व": "v",
+  "श": "sh",
+  "ष": "sh",
+  "स": "s",
+  "ह": "h",
+  "क्ष": "ksh",
+  "त्र": "tr",
+  "ज्ञ": "gy",
+  "ा": "a",
+  "ि": "i",
+  "ी": "i",
+  "ु": "u",
+  "ू": "u",
+  "ृ": "ri",
+  "े": "e",
+  "ै": "ai",
+  "ो": "o",
+  "ौ": "au",
+  "ं": "n",
+  "ः": "h",
+  "ँ": "n",
+  "्": "",
+  "।": " ",
 };
 
 function generateEnglishSlug(text: string) {
@@ -103,23 +102,23 @@ function generateEnglishSlug(text: string) {
 }
 
 const categoryOptions = [
-  "à¤¤à¤¾à¤œà¤¼à¤¾ à¤–à¤¬à¤°à¥‡à¤‚",
-  "à¤¦à¥‡à¤¶",
-  "à¤°à¤¾à¤œà¥à¤¯",
-  "à¤‰à¤¤à¥à¤¤à¤° à¤ªà¥à¤°à¤¦à¥‡à¤¶",
-  "à¤¦à¥à¤¨à¤¿à¤¯à¤¾",
-  "à¤°à¤¾à¤œà¤¨à¥€à¤¤à¤¿",
-  "à¤…à¤ªà¤°à¤¾à¤§",
-  "à¤µà¥à¤¯à¤¾à¤ªà¤¾à¤°",
-  "à¤–à¥‡à¤²",
-  "à¤®à¤¨à¥‹à¤°à¤‚à¤œà¤¨",
-  "à¤Ÿà¥‡à¤•à¥à¤¨à¥‹à¤²à¥‰à¤œà¥€",
-  "à¤¶à¤¿à¤•à¥à¤·à¤¾",
-  "à¤¸à¥à¤µà¤¾à¤¸à¥à¤¥à¥à¤¯",
-  "à¤§à¤°à¥à¤®",
-  "à¤²à¤¾à¤‡à¤«à¤¸à¥à¤Ÿà¤¾à¤‡à¤²",
-  "à¤ªà¥‰à¤¡à¤•à¤¾à¤¸à¥à¤Ÿ",
-  "à¤µà¥€à¤¡à¤¿à¤¯à¥‹",
+  "ताज़ा खबरें",
+  "देश",
+  "राज्य",
+  "उत्तर प्रदेश",
+  "दुनिया",
+  "राजनीति",
+  "अपराध",
+  "व्यापार",
+  "खेल",
+  "मनोरंजन",
+  "टेक्नोलॉजी",
+  "शिक्षा",
+  "स्वास्थ्य",
+  "धर्म",
+  "लाइफस्टाइल",
+  "पॉडकास्ट",
+  "वीडियो",
 ];
 
 export default function AdminPage() {
@@ -216,9 +215,7 @@ export default function AdminPage() {
   ) {
     event.preventDefault();
 
-    const pastedText =
-      event.clipboardData.getData("text/plain");
-
+    const pastedText = event.clipboardData.getData("text/plain");
     const textarea = event.currentTarget;
 
     const start = textarea.selectionStart;
@@ -232,20 +229,21 @@ export default function AdminPage() {
     setShortContent(newValue);
 
     requestAnimationFrame(() => {
-      const cursorPosition =
-        start + pastedText.length;
+      const cursorPosition = start + pastedText.length;
 
       textarea.focus();
-      textarea.setSelectionRange(
-        cursorPosition,
-        cursorPosition
-      );
+      textarea.setSelectionRange(cursorPosition, cursorPosition);
     });
   }
 
   async function uploadImage() {
     if (!selectedFile) {
       return image;
+    }
+
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert("Image का size 5 MB से अधिक नहीं होना चाहिए।");
+      return null;
     }
 
     setUploading(true);
@@ -262,7 +260,7 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Image upload à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤ˆ");
+        alert(data.error || "Image upload नहीं हुई।");
         return null;
       }
 
@@ -270,7 +268,7 @@ export default function AdminPage() {
       return data.url;
     } catch (error) {
       console.error(error);
-      alert("Image upload à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ");
+      alert("Image upload करने में समस्या हुई।");
       return null;
     } finally {
       setUploading(false);
@@ -283,38 +281,33 @@ export default function AdminPage() {
     event.preventDefault();
 
     if (!title.trim()) {
-      alert("Headline à¤¡à¤¾à¤²à¥‡à¤‚");
+      alert("Headline डालें।");
       return;
     }
 
     if (!category.trim()) {
-      alert("Category à¤šà¥à¤¨à¥‡à¤‚");
+      alert("Category चुनें।");
       return;
     }
 
     if (is60Words) {
       if (!shortContent.trim()) {
-        alert("News in 60 Words à¤µà¤¾à¤²à¤¾ content à¤¡à¤¾à¤²à¥‡à¤‚");
+        alert("News in 60 Words वाला content डालें।");
         return;
       }
 
-      const wordCount = shortContent
-        .trim()
-        .split(/\s+/)
-        .length;
+      const wordCount = shortContent.trim().split(/\s+/).length;
 
       if (wordCount > 60) {
         alert(
-          "News in 60 Words à¤®à¥‡à¤‚ à¤…à¤§à¤¿à¤•à¤¤à¤® 60 words à¤¹à¥‹à¤¨à¥‡ à¤šà¤¾à¤¹à¤¿à¤à¥¤ à¤…à¤­à¥€ " +
-            wordCount +
-            " words à¤¹à¥ˆà¤‚à¥¤"
+          `News in 60 Words में अधिकतम 60 words होने चाहिए। अभी ${wordCount} words हैं।`
         );
         return;
       }
     }
 
     if (!is60Words && !content.trim()) {
-      alert("News content à¤¡à¤¾à¤²à¥‡à¤‚");
+      alert("News content डालें।");
       return;
     }
 
@@ -337,9 +330,7 @@ export default function AdminPage() {
         slug: slug || generateEnglishSlug(title),
         category,
         content: is60Words ? "" : content.trim(),
-        shortContent: is60Words
-          ? shortContent.trim()
-          : null,
+        shortContent: is60Words ? shortContent.trim() : null,
         image: finalImage || null,
         language,
         isTrending,
@@ -364,21 +355,17 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "News save à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤ˆ");
+        alert(data.error || "News save नहीं हुई।");
         return;
       }
 
-      alert(
-        editingId
-          ? "News update à¤¹à¥‹ à¤—à¤ˆ"
-          : "News save à¤¹à¥‹ à¤—à¤ˆ"
-      );
+      alert(editingId ? "News update हो गई।" : "News save हो गई।");
 
       resetForm();
       await loadNews();
     } catch (error) {
       console.error(error);
-      alert("News save à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ");
+      alert("News save करने में समस्या हुई।");
     } finally {
       setLoading(false);
     }
@@ -394,10 +381,7 @@ export default function AdminPage() {
     setShortContent(item.shortContent || "");
 
     setIs60Words(
-      Boolean(
-        item.shortContent &&
-          item.shortContent.trim() !== ""
-      )
+      Boolean(item.shortContent && item.shortContent.trim() !== "")
     );
 
     setImage(item.image || "");
@@ -416,7 +400,7 @@ export default function AdminPage() {
 
   async function deleteNews(id: number) {
     const confirmDelete = window.confirm(
-      "à¤•à¥à¤¯à¤¾ à¤†à¤ª à¤‡à¤¸ à¤–à¤¬à¤° à¤•à¥‹ delete à¤•à¤°à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?"
+      "क्या आप इस खबर को delete करना चाहते हैं?"
     );
 
     if (!confirmDelete) {
@@ -435,16 +419,20 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Delete à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤ˆ");
+        alert(data.error || "Delete नहीं हुई।");
         return;
       }
 
-      alert("News delete à¤¹à¥‹ à¤—à¤ˆ");
+      alert("News delete हो गई।");
+
+      if (editingId === id) {
+        resetForm();
+      }
 
       await loadNews();
     } catch (error) {
       console.error(error);
-      alert("Delete à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ");
+      alert("Delete करने में समस्या हुई।");
     }
   }
 
@@ -470,7 +458,7 @@ export default function AdminPage() {
       });
 
       if (!response.ok) {
-        alert("Status update à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤†");
+        alert("Status update नहीं हुआ।");
         return;
       }
 
@@ -502,7 +490,7 @@ export default function AdminPage() {
       });
 
       if (!response.ok) {
-        alert("Trending status update à¤¨à¤¹à¥€à¤‚ à¤¹à¥à¤†");
+        alert("Trending status update नहीं हुआ।");
         return;
       }
 
@@ -516,10 +504,7 @@ export default function AdminPage() {
     new Set(
       news
         .map((item) => item.category)
-        .filter(
-          (item) =>
-            item && item.trim() !== ""
-        )
+        .filter((item) => item && item.trim() !== "")
     )
   );
 
@@ -533,22 +518,17 @@ export default function AdminPage() {
       item.slug.toLowerCase().includes(searchText);
 
     const matchesCategory =
-      categoryFilter === "all" ||
-      item.category === categoryFilter;
+      categoryFilter === "all" || item.category === categoryFilter;
 
     const matchesStatus =
       statusFilter === "all" ||
-      (statusFilter === "published" &&
-        item.published) ||
-      (statusFilter === "unpublished" &&
-        !item.published);
+      (statusFilter === "published" && item.published) ||
+      (statusFilter === "unpublished" && !item.published);
 
     const matchesTrending =
       trendingFilter === "all" ||
-      (trendingFilter === "trending" &&
-        item.isTrending) ||
-      (trendingFilter === "normal" &&
-        !item.isTrending);
+      (trendingFilter === "trending" && item.isTrending) ||
+      (trendingFilter === "normal" && !item.isTrending);
 
     return (
       matchesSearch &&
@@ -568,7 +548,7 @@ export default function AdminPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5">
           <div>
             <h1 className="text-3xl font-extrabold">
-              à¤²à¥‹à¤• à¤®à¤šà¤¾à¤¨ Admin
+              लोक मचान Admin
             </h1>
 
             <p className="mt-1 text-sm text-gray-500">
@@ -590,13 +570,11 @@ export default function AdminPage() {
           <div className="mb-6 flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <div>
               <h2 className="text-2xl font-bold">
-                {editingId
-                  ? "à¤–à¤¬à¤° Edit à¤•à¤°à¥‡à¤‚"
-                  : "à¤¨à¤ˆ à¤–à¤¬à¤° à¤œà¥‹à¤¡à¤¼à¥‡à¤‚"}
+                {editingId ? "खबर Edit करें" : "नई खबर जोड़ें"}
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Headline à¤¡à¤¾à¤²à¤¤à¥‡ à¤¹à¥€ English slug à¤…à¤ªà¤¨à¥‡ à¤†à¤ª à¤¬à¤¨à¥‡à¤—à¤¾à¥¤
+                Headline डालते ही English slug अपने आप बनेगा।
               </p>
             </div>
 
@@ -611,22 +589,17 @@ export default function AdminPage() {
             )}
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="mb-2 block font-semibold">
-                Headline / à¤–à¤¬à¤° à¤•à¥€ à¤¹à¥‡à¤¡à¤²à¤¾à¤‡à¤¨
+                Headline / खबर की हेडलाइन
               </label>
 
               <input
                 type="text"
                 value={title}
-                onChange={(e) =>
-                  handleTitleChange(e.target.value)
-                }
-                placeholder="à¤‰à¤¦à¤¾à¤¹à¤°à¤£: à¤¯à¥‚à¤ªà¥€ à¤®à¥‡à¤‚ à¤µà¤¿à¤§à¤¾à¤¨à¤¸à¤­à¤¾ à¤šà¥à¤¨à¤¾à¤µ à¤•à¥€ à¤¤à¥ˆà¤¯à¤¾à¤°à¥€ à¤¤à¥‡à¤œ"
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="उदाहरण: यूपी में विधानसभा चुनाव की तैयारी तेज"
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
               />
             </div>
@@ -639,16 +612,13 @@ export default function AdminPage() {
               <input
                 type="text"
                 value={slug}
-                onChange={(e) =>
-                  setSlug(e.target.value)
-                }
+                onChange={(e) => setSlug(e.target.value)}
                 placeholder="up-me-vidhansabha-chunav-ki-taiyari-tez"
                 className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:border-red-500"
               />
 
               <p className="mt-1 text-xs text-gray-500">
-                URL: /news/
-                {slug || "your-news-slug"}
+                URL: /news/{slug || "your-news-slug"}
               </p>
             </div>
 
@@ -660,20 +630,13 @@ export default function AdminPage() {
 
                 <select
                   value={category}
-                  onChange={(e) =>
-                    setCategory(e.target.value)
-                  }
+                  onChange={(e) => setCategory(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 >
-                  <option value="">
-                    Category à¤šà¥à¤¨à¥‡à¤‚
-                  </option>
+                  <option value="">Category चुनें</option>
 
                   {categoryOptions.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
+                    <option key={item} value={item}>
                       {item}
                     </option>
                   ))}
@@ -687,18 +650,11 @@ export default function AdminPage() {
 
                 <select
                   value={language}
-                  onChange={(e) =>
-                    setLanguage(e.target.value)
-                  }
+                  onChange={(e) => setLanguage(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 >
-                  <option value="hi">
-                    Hindi
-                  </option>
-
-                  <option value="en">
-                    English
-                  </option>
+                  <option value="hi">Hindi</option>
+                  <option value="en">English</option>
                 </select>
               </div>
             </div>
@@ -712,15 +668,13 @@ export default function AdminPage() {
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={(e) =>
-                  handleFileChange(
-                    e.target.files?.[0] || null
-                  )
+                  handleFileChange(e.target.files?.[0] || null)
                 }
                 className="w-full rounded-xl border border-gray-300 bg-white p-3"
               />
 
               <p className="mt-1 text-xs text-gray-500">
-                JPG, PNG, WEBP à¤¯à¤¾ GIF - maximum 5 MB
+                JPG, PNG, WEBP या GIF - maximum 5 MB
               </p>
 
               {imagePreview && (
@@ -743,13 +697,10 @@ export default function AdminPage() {
             <div className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-5">
               <label className="flex cursor-pointer items-center justify-between gap-4">
                 <div>
-                  <p className="font-bold text-gray-900">
-                    News Type
-                  </p>
+                  <p className="font-bold text-gray-900">News Type</p>
 
                   <p className="mt-1 text-sm text-gray-500">
-                    à¤…à¤—à¤° 60 Words à¤µà¤¾à¤²à¥€ à¤›à¥‹à¤Ÿà¥€ à¤–à¤¬à¤° à¤¬à¤¨à¤¾à¤¨à¥€ à¤¹à¥ˆ à¤¤à¥‹
-                    à¤‡à¤¸à¥‡ ON à¤•à¤°à¥‡à¤‚à¥¤
+                    अगर 60 Words वाली छोटी खबर बनानी है तो इसे ON करें।
                   </p>
                 </div>
 
@@ -757,9 +708,7 @@ export default function AdminPage() {
                   <input
                     type="checkbox"
                     checked={is60Words}
-                    onChange={(e) =>
-                      setIs60Words(e.target.checked)
-                    }
+                    onChange={(e) => setIs60Words(e.target.checked)}
                     className="h-6 w-6 cursor-pointer accent-red-600"
                   />
                 </div>
@@ -774,33 +723,23 @@ export default function AdminPage() {
                 }
               >
                 {is60Words
-                  ? "60 Words News ON - à¤…à¤¬ à¤¨à¥€à¤šà¥‡ à¤¸à¤¿à¤°à¥à¤« 60 Words à¤µà¤¾à¤²à¤¾ content à¤¡à¤¾à¤²à¥‡à¤‚à¥¤"
-                  : "Normal News - à¤…à¤¬ à¤¨à¥€à¤šà¥‡ à¤ªà¥‚à¤°à¥€ à¤–à¤¬à¤° à¤•à¤¾ content à¤¡à¤¾à¤²à¥‡à¤‚à¥¤"}
+                  ? "60 Words News ON - अब नीचे सिर्फ 60 Words वाला content डालें।"
+                  : "Normal News - अब नीचे पूरी खबर का content डालें।"}
               </div>
             </div>
 
             {!is60Words && (
               <div className="rounded-2xl border border-gray-200 bg-white">
                 <div className="border-b bg-gray-50 px-4 py-3">
-                  <label className="font-bold">
-                    Full News Content
-                  </label>
+                  <label className="font-bold">Full News Content</label>
 
                   <p className="mt-1 text-xs text-gray-500">
-                    à¤¯à¤¹à¤¾à¤‚ à¤ªà¥‚à¤°à¥€ à¤–à¤¬à¤° à¤²à¤¿à¤–à¥‡à¤‚à¥¤
+                    यहाँ पूरी खबर लिखें।
                   </p>
                 </div>
 
                 <div className="p-4">
-                  <textarea
-                    value={content}
-                    onChange={(e) =>
-                      setContent(e.target.value)
-                    }
-                    placeholder="à¤¯à¤¹à¤¾à¤‚ à¤ªà¥‚à¤°à¥€ à¤–à¤¬à¤° à¤²à¤¿à¤–à¥‡à¤‚..."
-                    rows={12}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
-                  />
+                  <RichTextEditor value={content} onChange={setContent} placeholder="यहाँ पूरी खबर लिखें..." />
                 </div>
               </div>
             )}
@@ -814,7 +753,7 @@ export default function AdminPage() {
                     </label>
 
                     <p className="mt-1 text-xs text-gray-500">
-                      à¤‡à¤¸ box à¤®à¥‡à¤‚ à¤…à¤§à¤¿à¤•à¤¤à¤® 60 words à¤•à¥€ à¤–à¤¬à¤° à¤²à¤¿à¤–à¥‡à¤‚à¥¤
+                      इस box में अधिकतम 60 words की खबर लिखें।
                     </p>
                   </div>
 
@@ -835,12 +774,10 @@ export default function AdminPage() {
                 <textarea
                   value={shortContent}
                   onChange={(e) =>
-                    handleShortContentChange(
-                      e.target.value
-                    )
+                    handleShortContentChange(e.target.value)
                   }
                   onPaste={handleShortContentPaste}
-                  placeholder="à¤¯à¤¹à¤¾à¤‚ 60 words à¤•à¥‡ à¤…à¤‚à¤¦à¤° à¤–à¤¬à¤° à¤²à¤¿à¤–à¥‡à¤‚..."
+                  placeholder="यहाँ 60 words के अंदर खबर लिखें..."
                   rows={7}
                   className={
                     "w-full rounded-xl border bg-white px-4 py-3 outline-none focus:border-red-500 " +
@@ -852,24 +789,22 @@ export default function AdminPage() {
 
                 {shortWordCount > 60 && (
                   <div className="mt-3 rounded-lg bg-red-100 p-3 text-sm font-semibold text-red-700">
-                    à¤†à¤ªà¤•à¥€ à¤–à¤¬à¤°{" "}
-                    {shortWordCount - 60} words à¤œà¥à¤¯à¤¾à¤¦à¤¾ à¤¹à¥ˆà¥¤
-                    Save à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤‡à¤¸à¥‡ 60 words à¤¯à¤¾ à¤‰à¤¸à¤¸à¥‡ à¤•à¤® à¤•à¤°à¥‡à¤‚à¥¤
+                    आपकी खबर {shortWordCount - 60} words ज्यादा है। Save
+                    करने के लिए इसे 60 words या उससे कम करें।
                   </div>
                 )}
 
-                {shortWordCount > 0 &&
-                  shortWordCount <= 60 && (
-                    <div className="mt-3 rounded-lg bg-green-50 p-3 text-sm font-semibold text-green-700">
-                      {60 - shortWordCount} words à¤”à¤° à¤²à¤¿à¤– à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤
-                    </div>
-                  )}
+                {shortWordCount > 0 && shortWordCount <= 60 && (
+                  <div className="mt-3 rounded-lg bg-green-50 p-3 text-sm font-semibold text-green-700">
+                    {60 - shortWordCount} words और लिख सकते हैं।
+                  </div>
+                )}
 
                 <div className="mt-3 rounded-lg bg-white p-3 text-xs text-gray-500">
-                  à¤‡à¤¸ mode à¤®à¥‡à¤‚ Full News Content à¤¡à¤¾à¤²à¤¨à¥‡ à¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤
-                  à¤¸à¤¿à¤°à¥à¤« à¤¯à¤¹à¥€ content public website à¤•à¥‡
+                  इस mode में Full News Content डालने की जरूरत नहीं है।
+                  सिर्फ यही content public website के
                   <strong> News in 60 Words </strong>
-                  section à¤®à¥‡à¤‚ à¤¦à¤¿à¤–à¤¾à¤ˆ à¤¦à¥‡à¤—à¤¾à¥¤
+                  section में दिखाई देगा।
                 </div>
               </div>
             )}
@@ -879,30 +814,22 @@ export default function AdminPage() {
                 <input
                   type="checkbox"
                   checked={isTrending}
-                  onChange={(e) =>
-                    setIsTrending(e.target.checked)
-                  }
+                  onChange={(e) => setIsTrending(e.target.checked)}
                   className="h-5 w-5"
                 />
 
-                <span className="font-semibold">
-                  Trending News
-                </span>
+                <span className="font-semibold">Trending News</span>
               </label>
 
               <label className="flex cursor-pointer items-center gap-3">
                 <input
                   type="checkbox"
                   checked={published}
-                  onChange={(e) =>
-                    setPublished(e.target.checked)
-                  }
+                  onChange={(e) => setPublished(e.target.checked)}
                   className="h-5 w-5"
                 />
 
-                <span className="font-semibold">
-                  Publish News
-                </span>
+                <span className="font-semibold">Publish News</span>
               </label>
             </div>
 
@@ -912,25 +839,23 @@ export default function AdminPage() {
               className="w-full rounded-xl bg-red-600 px-5 py-4 text-lg font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {uploading
-                ? "Image Upload à¤¹à¥‹ à¤°à¤¹à¥€ à¤¹à¥ˆ..."
+                ? "Image Upload हो रही है..."
                 : loading
-                  ? "Save à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ..."
+                  ? "Save हो रहा है..."
                   : editingId
-                    ? "News Update à¤•à¤°à¥‡à¤‚"
-                    : "News Save à¤•à¤°à¥‡à¤‚"}
+                    ? "News Update करें"
+                    : "News Save करें"}
             </button>
           </form>
         </section>
 
         <section className="mt-8 rounded-2xl bg-white p-5 shadow md:p-7">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold">
-              Manage News
-            </h2>
+            <h2 className="text-2xl font-bold">Manage News</h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              à¤¯à¤¹à¤¾à¤‚ à¤¸à¥‡ à¤¸à¤­à¥€ à¤–à¤¬à¤°à¥‹à¤‚ à¤•à¥‹ search, filter, edit,
-              publish à¤”à¤° delete à¤•à¤° à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤
+              यहाँ से सभी खबरों को search, filter, edit, publish और delete
+              कर सकते हैं।
             </p>
           </div>
 
@@ -944,9 +869,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   value={search}
-                  onChange={(e) =>
-                    setSearch(e.target.value)
-                  }
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Headline / category / slug"
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 />
@@ -959,20 +882,13 @@ export default function AdminPage() {
 
                 <select
                   value={categoryFilter}
-                  onChange={(e) =>
-                    setCategoryFilter(e.target.value)
-                  }
+                  onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 >
-                  <option value="all">
-                    à¤¸à¤­à¥€ Categories
-                  </option>
+                  <option value="all">सभी Categories</option>
 
                   {categories.map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
+                    <option key={item} value={item}>
                       {item}
                     </option>
                   ))}
@@ -986,22 +902,12 @@ export default function AdminPage() {
 
                 <select
                   value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
+                  onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 >
-                  <option value="all">
-                    à¤¸à¤­à¥€
-                  </option>
-
-                  <option value="published">
-                    Published
-                  </option>
-
-                  <option value="unpublished">
-                    Unpublished
-                  </option>
+                  <option value="all">सभी</option>
+                  <option value="published">Published</option>
+                  <option value="unpublished">Unpublished</option>
                 </select>
               </div>
 
@@ -1012,32 +918,20 @@ export default function AdminPage() {
 
                 <select
                   value={trendingFilter}
-                  onChange={(e) =>
-                    setTrendingFilter(e.target.value)
-                  }
+                  onChange={(e) => setTrendingFilter(e.target.value)}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-500"
                 >
-                  <option value="all">
-                    à¤¸à¤­à¥€
-                  </option>
-
-                  <option value="trending">
-                    Trending
-                  </option>
-
-                  <option value="normal">
-                    Normal News
-                  </option>
+                  <option value="all">सभी</option>
+                  <option value="trending">Trending</option>
+                  <option value="normal">Normal News</option>
                 </select>
               </div>
             </div>
 
             <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <p className="text-sm font-semibold text-gray-600">
-                {filteredNews.length} à¤–à¤¬à¤°
-                {filteredNews.length !== 1
-                  ? "à¥‡à¤‚"
-                  : ""} à¤®à¤¿à¤²à¥€
+                {filteredNews.length} खबर
+                {filteredNews.length !== 1 ? "ें" : ""} मिली
               </p>
 
               <button
@@ -1050,7 +944,7 @@ export default function AdminPage() {
                 }}
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-100"
               >
-                à¤¸à¤­à¥€ Filters à¤¹à¤Ÿà¤¾à¤à¤‚
+                सभी Filters हटाएँ
               </button>
             </div>
           </div>
@@ -1058,7 +952,7 @@ export default function AdminPage() {
           <div className="mt-6 space-y-4">
             {filteredNews.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-gray-500">
-                à¤•à¥‹à¤ˆ à¤–à¤¬à¤° à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¥€à¥¤
+                कोई खबर नहीं मिली।
               </div>
             ) : (
               filteredNews.map((item) => (
@@ -1124,7 +1018,7 @@ export default function AdminPage() {
                         </p>
                       ) : (
                         <p className="mt-3 text-sm font-semibold text-blue-600">
-                          à¤¯à¤¹ 60 Words à¤µà¤¾à¤²à¥€ à¤–à¤¬à¤° à¤¹à¥ˆ
+                          यह 60 Words वाली खबर है।
                         </p>
                       )}
 
@@ -1142,18 +1036,18 @@ export default function AdminPage() {
 
                       <div className="mt-4 flex flex-wrap gap-2">
                         <Link
-                          href={"/news/" + item.slug}
+                          href={`/news/${encodeURIComponent(
+                            item.slug.trim()
+                          )}`}
                           target="_blank"
                           className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
                         >
-                          à¤¦à¥‡à¤–à¥‡à¤‚
+                          देखें
                         </Link>
 
                         <button
                           type="button"
-                          onClick={() =>
-                            editNews(item)
-                          }
+                          onClick={() => editNews(item)}
                           className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                         >
                           Edit
@@ -1161,33 +1055,25 @@ export default function AdminPage() {
 
                         <button
                           type="button"
-                          onClick={() =>
-                            togglePublished(item)
-                          }
+                          onClick={() => togglePublished(item)}
                           className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
                         >
-                          {item.published
-                            ? "Unpublish"
-                            : "Publish"}
+                          {item.published ? "Unpublish" : "Publish"}
                         </button>
 
                         <button
                           type="button"
-                          onClick={() =>
-                            toggleTrending(item)
-                          }
+                          onClick={() => toggleTrending(item)}
                           className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
                         >
                           {item.isTrending
-                            ? "Trending à¤¹à¤Ÿà¤¾à¤à¤‚"
+                            ? "Trending हटाएँ"
                             : "Trending"}
                         </button>
 
                         <button
                           type="button"
-                          onClick={() =>
-                            deleteNews(item.id)
-                          }
+                          onClick={() => deleteNews(item.id)}
                           className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
                         >
                           Delete
@@ -1204,18 +1090,17 @@ export default function AdminPage() {
 
       <footer className="mt-10 bg-black px-4 py-8 text-center text-white">
         <h2 className="text-2xl font-bold text-red-500">
-          à¤²à¥‹à¤• à¤®à¤šà¤¾à¤¨
+          लोक मचान
         </h2>
 
         <p className="mt-2 text-sm text-gray-400">
-          à¤†à¤ªà¤•à¥€ à¤†à¤µà¤¾à¤œà¤¼, à¤¹à¤®à¤¾à¤°à¤¾ à¤®à¤‚à¤š
+          आपकी आवाज़, हमारा मंच
         </p>
 
         <p className="mt-4 text-xs text-gray-500">
-          Â© 2026 Lok Machan. All Rights Reserved.
+          © 2026 Lok Machan. All Rights Reserved.
         </p>
       </footer>
     </main>
   );
 }
-
