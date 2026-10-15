@@ -39,12 +39,13 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
+    <main className="flex min-h-screen items-center justify-center p-6">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md space-y-5 rounded-xl border p-6 shadow-sm"
       >
         <h1 className="text-2xl font-bold">Admin Login</h1>
+
         <p className="text-sm text-gray-600">
           Admin panel ke liye apni alag ID aur password daalein.
         </p>
@@ -53,13 +54,15 @@ export default function AdminLoginPage() {
           <label htmlFor="admin-id" className="block text-sm font-medium">
             Admin ID
           </label>
+
           <input
             id="admin-id"
             autoComplete="username"
             value={id}
             onChange={(event) => setId(event.target.value)}
             required
-            className="w-full rounded-md border p-3"
+            disabled={loading}
+            className="w-full rounded-md border p-3 disabled:opacity-60"
           />
         </div>
 
@@ -67,6 +70,7 @@ export default function AdminLoginPage() {
           <label htmlFor="admin-password" className="block text-sm font-medium">
             Admin Password
           </label>
+
           <input
             id="admin-password"
             type="password"
@@ -74,16 +78,21 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className="w-full rounded-md border p-3"
+            disabled={loading}
+            className="w-full rounded-md border p-3 disabled:opacity-60"
           />
         </div>
 
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-black p-3 font-medium text-white disabled:opacity-60"
+          style={{ cursor: loading ? "not-allowed" : "pointer" }} className="w-full cursor-pointer rounded-md bg-black p-3 font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Login ho raha hai..." : "Admin Login"}
         </button>
