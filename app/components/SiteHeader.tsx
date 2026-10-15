@@ -17,6 +17,7 @@ const categories = [
   { name: "टेक्नोलॉजी", href: "/category/technology" },
   { name: "🎙 पॉडकास्ट", href: "/category/podcast" },
   { name: "संपर्क करें", href: "/contact" },
+  { name: "About Us", href: "/about" },
 ];
 
 export default function SiteHeader() {
