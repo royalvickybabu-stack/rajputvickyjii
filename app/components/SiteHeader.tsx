@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -16,6 +16,7 @@ const categories = [
   { name: "मनोरंजन", href: "/category/manoranjan" },
   { name: "टेक्नोलॉजी", href: "/category/technology" },
   { name: "🎙 पॉडकास्ट", href: "/category/podcast" },
+  { name: "संपर्क करें", href: "/contact" },
 ];
 
 export default function SiteHeader() {
