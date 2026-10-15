@@ -1,24 +1,15 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
-
-const prisma = new PrismaClient({ adapter });
-
+import { prisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
     const identifier = body.identifier?.trim() || "";
     const password = body.password || "";
 
     if (!identifier || !password) {
       return NextResponse.json(
-        { error: "ईमेल/मोबाइल और पासवर्ड दोनों जरूरी हैं।" },
+        { error: "Email/mobile aur password zaroori hain." },
         { status: 400 }
       );
     }
@@ -33,7 +24,7 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "ईमेल/मोबाइल या पासवर्ड गलत है।" },
+        { error: "Login details sahi nahi hain." },
         { status: 401 }
       );
     }
@@ -42,13 +33,13 @@ export async function POST(request: Request) {
 
     if (!passwordMatch) {
       return NextResponse.json(
-        { error: "ईमेल/मोबाइल या पासवर्ड गलत है।" },
+        { error: "Login details sahi nahi hain." },
         { status: 401 }
       );
     }
 
-    return NextResponse.json({
-      message: "लॉगिन सफल हुआ।",
+    const response = NextResponse.json({
+      message: "Login successful.",
       user: {
         id: user.id,
         name: user.name,
@@ -56,14 +47,13 @@ export async function POST(request: Request) {
         mobile: user.mobile,
       },
     });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
-
     return NextResponse.json(
-      { error: "लॉगिन करने में समस्या हुई।" },
+      { error: "Login mein server error aaya." },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

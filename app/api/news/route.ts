@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendNewsNotification } from "@/lib/sendNewsNotification";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get("admin") === "true";
+    if (isAdmin && !(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const news = await prisma.news.findMany({
       where: isAdmin ? undefined : { published: true },
@@ -17,7 +21,7 @@ export async function GET(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News fetch करने में समस्या हुई" },
+      { error: "News fetch à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
       { status: 500 }
     );
   }
@@ -25,6 +29,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await request.json();
 
     const title = body.title?.trim() || "";
@@ -34,7 +41,7 @@ export async function POST(request: Request) {
 
     if (!title || !slug) {
       return NextResponse.json(
-        { error: "Title और slug जरूरी हैं।" },
+        { error: "Title à¤”à¤° slug à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¤‚à¥¤" },
         { status: 400 }
       );
     }
@@ -43,7 +50,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "या तो Full News Content या News in 60 Words जरूरी है।",
+            "à¤¯à¤¾ à¤¤à¥‹ Full News Content à¤¯à¤¾ News in 60 Words à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¥¤",
         },
         { status: 400 }
       );
@@ -56,14 +63,14 @@ export async function POST(request: Request) {
         content,
         shortContent: shortContent || null,
         image: body.image || null,
-        category: body.category || "अन्य",
+        category: body.category || "à¤…à¤¨à¥à¤¯",
         language: body.language || "hi",
         isTrending: body.isTrending ?? false,
         published: body.published ?? true,
       },
     });
 
-    // केवल published news के लिए notification भेजें
+    // à¤•à¥‡à¤µà¤² published news à¤•à¥‡ à¤²à¤¿à¤ notification à¤­à¥‡à¤œà¥‡à¤‚
     if (news.published) {
       try {
         await sendNewsNotification(
@@ -83,7 +90,7 @@ export async function POST(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News create करने में समस्या हुई" },
+      { error: "News create à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
       { status: 500 }
     );
   }
@@ -91,11 +98,14 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await request.json();
 
     if (!body.id) {
       return NextResponse.json(
-        { error: "News ID जरूरी है" },
+        { error: "News ID à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆ" },
         { status: 400 }
       );
     }
@@ -107,7 +117,7 @@ export async function PUT(request: Request) {
 
     if (!title || !slug) {
       return NextResponse.json(
-        { error: "Title और slug जरूरी हैं।" },
+        { error: "Title à¤”à¤° slug à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¤‚à¥¤" },
         { status: 400 }
       );
     }
@@ -116,7 +126,7 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         {
           error:
-            "या तो Full News Content या News in 60 Words जरूरी है।",
+            "à¤¯à¤¾ à¤¤à¥‹ Full News Content à¤¯à¤¾ News in 60 Words à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¥¤",
         },
         { status: 400 }
       );
@@ -132,7 +142,7 @@ export async function PUT(request: Request) {
         content,
         shortContent: shortContent || null,
         image: body.image || null,
-        category: body.category || "अन्य",
+        category: body.category || "à¤…à¤¨à¥à¤¯",
         language: body.language || "hi",
         isTrending: body.isTrending ?? false,
         published: body.published ?? true,
@@ -144,7 +154,7 @@ export async function PUT(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News update करने में समस्या हुई" },
+      { error: "News update à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
       { status: 500 }
     );
   }
@@ -152,11 +162,14 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await request.json();
 
     if (!body.id) {
       return NextResponse.json(
-        { error: "News ID जरूरी है" },
+        { error: "News ID à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆ" },
         { status: 400 }
       );
     }
@@ -169,13 +182,13 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "News delete हो गई",
+      message: "News delete à¤¹à¥‹ à¤—à¤ˆ",
     });
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News delete करने में समस्या हुई" },
+      { error: "News delete à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
       { status: 500 }
     );
   }

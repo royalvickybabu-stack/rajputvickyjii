@@ -1,7 +1,11 @@
-import { put } from "@vercel/blob";
+﻿import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 export async function POST(request: Request) {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     console.log("Blob env check:", {
       hasToken: !!process.env.BLOB_READ_WRITE_TOKEN,
@@ -14,7 +18,7 @@ export async function POST(request: Request) {
 
     if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: "Image file नहीं मिली।" },
+        { error: "Image file à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¥€à¥¤" },
         { status: 400 }
       );
     }
@@ -30,7 +34,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "सिर्फ JPG, PNG, WEBP या GIF image upload कर सकते हैं।",
+            "à¤¸à¤¿à¤°à¥à¤« JPG, PNG, WEBP à¤¯à¤¾ GIF image upload à¤•à¤° à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤",
         },
         { status: 400 }
       );
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
     if (file.size > maxSize) {
       return NextResponse.json(
         {
-          error: "Image का size 5 MB से ज्यादा नहीं होना चाहिए।",
+          error: "Image à¤•à¤¾ size 5 MB à¤¸à¥‡ à¤œà¥à¤¯à¤¾à¤¦à¤¾ à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤à¥¤",
         },
         { status: 400 }
       );
@@ -63,7 +67,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "BLOB_READ_WRITE_TOKEN Next.js server में load नहीं हो रहा। .env.local check करें और server restart करें।",
+            "BLOB_READ_WRITE_TOKEN Next.js server à¤®à¥‡à¤‚ load à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹ à¤°à¤¹à¤¾à¥¤ .env.local check à¤•à¤°à¥‡à¤‚ à¤”à¤° server restart à¤•à¤°à¥‡à¤‚à¥¤",
         },
         { status: 500 }
       );
