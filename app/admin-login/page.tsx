@@ -46,9 +46,6 @@ export default function AdminLoginPage() {
       >
         <h1 className="text-2xl font-bold">Admin Login</h1>
 
-        <p className="text-sm text-gray-600">
-          Admin panel ke liye apni alag ID aur password daalein.
-        </p>
 
         <div className="space-y-2">
           <label htmlFor="admin-id" className="block text-sm font-medium">
