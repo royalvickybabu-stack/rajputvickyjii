@@ -34,9 +34,9 @@ export default function SiteHeader() {
   return (
     <>
       {/* DATE + LIVE TIME */}
-      <div className="bg-black text-sm text-white">
-        <div className="mx-auto max-w-7xl px-4 py-2">
-          <div className="flex items-center gap-2">
+      <div className="bg-black text-xs text-white sm:text-sm">
+        <div className="mx-auto max-w-7xl px-3 py-2 sm:px-4">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {currentTime ? (
               <>
                 <span>
@@ -67,41 +67,41 @@ export default function SiteHeader() {
 
       {/* HEADER */}
       <header className="bg-white">
-        <div className="mx-auto flex max-w-7xl items-center px-4 py-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:gap-0 sm:px-4 sm:py-4">
           <Link
             href="/"
-            className="flex items-center gap-3"
+            className="flex min-w-0 items-center gap-2 sm:gap-3"
           >
             <img
               src="/logo.png.png"
               alt="लोक मचान"
-              className="h-20 w-auto object-contain"
+              className="h-14 w-auto shrink-0 object-contain sm:h-20"
             />
 
-            <div>
-              <h1 className="text-3xl font-extrabold text-black">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-extrabold text-black sm:text-3xl">
                 लोक मचान
               </h1>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-gray-500 sm:text-sm">
                 आपकी आवाज़, हमारा मंच
               </p>
             </div>
           </Link>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-center justify-start gap-2 sm:ml-auto sm:w-auto sm:flex-nowrap sm:gap-3">
             <NotificationButton />
 
             <Link
               href="/login"
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 sm:px-4 sm:text-sm"
             >
               लॉगिन करें
             </Link>
 
             <Link
               href="/follow"
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 sm:px-4 sm:text-sm"
             >
               हमें फ़ॉलो करें
             </Link>
@@ -111,7 +111,7 @@ export default function SiteHeader() {
 
       {/* NAVIGATION */}
       <nav className="bg-black text-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-6 overflow-x-auto px-4 py-3 text-sm font-medium">
+        <div className="mx-auto flex max-w-7xl items-center gap-5 overflow-x-auto px-3 py-3 text-sm font-medium sm:gap-6 sm:px-4">
           <Link
             href="/"
             className="shrink-0 text-xl hover:text-red-400"

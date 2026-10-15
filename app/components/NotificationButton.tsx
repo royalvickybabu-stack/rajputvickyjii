@@ -104,12 +104,12 @@ export default function NotificationButton() {
   }
 
   return (
-    <div className="text-center">
+    <div className="w-full max-w-full text-center">
       <button
         type="button"
         onClick={enableNotifications}
         disabled={loading}
-        className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="max-w-full cursor-pointer rounded-lg bg-red-600 px-2 py-2 text-xs font-semibold leading-5 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm"
       >
         {loading
           ? "चालू हो रहा है..."
@@ -117,7 +117,7 @@ export default function NotificationButton() {
       </button>
 
       {message && (
-        <p className="mt-2 text-sm font-semibold text-gray-700">
+        <p className="mt-2 break-words text-sm font-semibold text-gray-700">
           {message}
         </p>
       )}
