@@ -780,7 +780,7 @@ export default function AdminPage() {
                   placeholder="यहाँ 60 words के अंदर खबर लिखें..."
                   rows={7}
                   className={
-                    "w-full rounded-xl border bg-white px-4 py-3 outline-none focus:border-red-500 " +
+                    "w-full rounded-xl border bg-white px-4 py-3 text-black placeholder:text-gray-500 outline-none focus:border-red-500 " +
                     (shortWordCount > 60
                       ? "border-red-500"
                       : "border-red-200")
