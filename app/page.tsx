@@ -100,11 +100,11 @@ export default function Home() {
 
       {/* AD SPACE */}
       <div className="mx-auto max-w-7xl px-4">
-        <div className="h-24 w-full" />
+        <div className="h-8 w-full sm:h-24" />
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-6">
 
         {/* MAIN NEWS HEADER */}
         <div className="mb-5 flex items-center justify-between">
@@ -216,7 +216,7 @@ export default function Home() {
         )}
 
         {/* SPACE */}
-        <div className="h-24 w-full" />
+        <div className="h-8 w-full sm:h-24" />
 
         {/* LATEST NEWS */}
         <section className="rounded-xl bg-white p-5 shadow">

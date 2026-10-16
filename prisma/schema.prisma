@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,30 +8,34 @@ datasource db {
 }
 
 model News {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   title        String
-  slug         String   @unique
+  slug         String    @unique
   content      String
   shortContent String?
   image        String?
   category     String
-  language     String   @default("hi")
-  isTrending   Boolean  @default(false)
-  published    Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  language     String    @default("hi")
+  isTrending   Boolean   @default(false)
+  published    Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  comments Comment[]
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   name      String?
   email     String?  @unique
+  googleId  String?  @unique
   mobile    String?  @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   notificationSubscriptions NotificationSubscription[]
+  comments                  Comment[]
 }
 
 model NotificationSubscription {
@@ -44,5 +49,20 @@ model NotificationSubscription {
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  newsId    Int
+  userId    Int?
+  name      String
+  content   String
+  createdAt DateTime @default(now())
+
+  news News @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([newsId, createdAt])
   @@index([userId])
 }

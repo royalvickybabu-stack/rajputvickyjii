@@ -1,8 +1,12 @@
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import NewsShareActions from "@/app/components/NewsShareActions";
+import NewsComments from "@/app/components/NewsComments";
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "@/lib/prisma";
+import { decodeNewsEntities } from "@/lib/news-content";
 
 type PageProps = {
   params: Promise<{
@@ -111,13 +115,15 @@ export default async function NewsPage({ params }: PageProps) {
     news.shortContent?.trim() ||
     "इस खबर की जानकारी अभी उपलब्ध नहीं है।";
 
+  const decodedContent = decodeNewsEntities(content);
+
   const containsHtml =
     /<\/?(p|br|strong|b|em|i|u|h[1-6]|ul|ol|li|a|blockquote|div)\b/i.test(
-      content
+      decodedContent
     );
 
   const safeHtml = containsHtml
-    ? sanitizeHtml(content, {
+    ? sanitizeHtml(decodedContent, {
         allowedTags: [
           "p",
           "br",
@@ -175,6 +181,8 @@ export default async function NewsPage({ params }: PageProps) {
           )}
 
           <div className="p-5 md:p-10">
+            <NewsShareActions title={news.title} />
+
             <div className="mb-4">
               <span className="rounded-full bg-red-50 px-4 py-1.5 text-sm font-bold text-red-600">
                 {news.category}
@@ -203,10 +211,12 @@ export default async function NewsPage({ params }: PageProps) {
                 />
               ) : (
                 <div className="whitespace-pre-line text-lg leading-8 text-gray-800 md:text-xl md:leading-9">
-                  {content}
+                  {decodedContent}
                 </div>
               )}
             </div>
+
+            <NewsComments slug={news.slug} />
 
             <div className="mt-10 border-t border-gray-200 pt-6">
               <Link

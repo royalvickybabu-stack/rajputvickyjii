@@ -35,6 +35,10 @@ type PodcastVideo = {
   url: string;
 };
 
+function getNewsUrl(slug: string) {
+  return `/news/${encodeURIComponent(slug.trim())}`;
+}
+
 export default function CategoryPage() {
   const params = useParams();
 
@@ -60,6 +64,11 @@ export default function CategoryPage() {
         setLoading(true);
 
         const response = await fetch("/api/news");
+
+        if (!response.ok) {
+          throw new Error(`News API failed: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!Array.isArray(data)) {
@@ -98,6 +107,11 @@ export default function CategoryPage() {
         setPodcastLoading(true);
 
         const response = await fetch("/api/youtube/podcasts");
+
+        if (!response.ok) {
+          throw new Error(`Podcast API failed: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!Array.isArray(data)) {
@@ -119,8 +133,10 @@ export default function CategoryPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
+
       <div className="mx-auto max-w-7xl px-4 py-10">
 
+        {/* BACK */}
         <Link
           href="/"
           className="mb-6 inline-block font-medium text-red-600 hover:underline"
@@ -128,10 +144,12 @@ export default function CategoryPage() {
           ← होम पर वापस जाएँ
         </Link>
 
+        {/* CATEGORY TITLE */}
         <h1 className="mb-8 text-3xl font-extrabold text-black">
           {categoryName}
         </h1>
 
+        {/* PODCAST */}
         {decodedCategory === "podcast" ? (
           <section>
 
@@ -155,20 +173,27 @@ export default function CategoryPage() {
               >
                 ▶ Visit for More
               </a>
+
             </div>
 
             {podcastLoading ? (
+
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
                 पॉडकास्ट लोड हो रहे हैं...
               </div>
+
             ) : podcasts.length === 0 ? (
+
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
                 अभी कोई पॉडकास्ट उपलब्ध नहीं है।
               </div>
+
             ) : (
+
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
                 {podcasts.map((video) => (
+
                   <a
                     key={video.id}
                     href={video.url}
@@ -176,6 +201,7 @@ export default function CategoryPage() {
                     rel="noopener noreferrer"
                     className="group overflow-hidden rounded-xl bg-white shadow transition hover:-translate-y-1 hover:shadow-xl"
                   >
+
                     <div className="relative overflow-hidden">
 
                       <img
@@ -191,6 +217,7 @@ export default function CategoryPage() {
                         </div>
 
                       </div>
+
                     </div>
 
                     <div className="p-5">
@@ -210,40 +237,55 @@ export default function CategoryPage() {
                       </p>
 
                     </div>
+
                   </a>
+
                 ))}
 
               </div>
+
             )}
 
           </section>
         ) : (
 
+          /* NEWS CATEGORY */
           <>
+
             {loading ? (
+
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
                 खबरें लोड हो रही हैं...
               </div>
+
             ) : news.length === 0 ? (
+
               <div className="rounded-lg bg-white p-8 text-center font-bold text-black shadow">
                 इस कैटेगरी में अभी कोई खबर उपलब्ध नहीं है।
               </div>
+
             ) : (
+
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
                 {news.map((item) => (
+
                   <Link
                     key={item.id}
-                    href={"/news/" + item.slug}
-                    className="overflow-hidden rounded-lg bg-white shadow transition hover:shadow-lg"
+                    href={getNewsUrl(item.slug)}
+                    className="group overflow-hidden rounded-xl bg-white shadow transition hover:-translate-y-1 hover:shadow-lg"
                   >
 
-                    {item.image && (
+                    {item.image ? (
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="h-52 w-full object-cover"
+                        className="h-52 w-full object-cover transition duration-300 group-hover:scale-105"
                       />
+                    ) : (
+                      <div className="flex h-52 w-full items-center justify-center bg-gray-200 text-gray-500">
+                        न्यूज़ फोटो
+                      </div>
                     )}
 
                     <div className="p-5">
@@ -252,21 +294,26 @@ export default function CategoryPage() {
                         {item.category}
                       </p>
 
-                      <h2 className="text-xl font-extrabold text-black">
+                      <h2 className="text-xl font-extrabold leading-snug text-black group-hover:text-red-600">
                         {item.title}
                       </h2>
 
                     </div>
 
                   </Link>
+
                 ))}
 
               </div>
+
             )}
+
           </>
+
         )}
 
       </div>
+
     </main>
   );
 }

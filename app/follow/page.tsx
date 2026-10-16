@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 
@@ -37,8 +37,7 @@ export default function FollowPage() {
           </h2>
 
           <p className="mx-auto mt-3 max-w-md text-gray-600">
-            लोक मचान से जुड़े रहें और देश, राज्य, राजनीति,
-            खेल, मनोरंजन और स्थानीय खबरों की ताज़ा जानकारी पाते रहें।
+            लोक मचान से जुड़े रहें और देश, राज्य, राजनीति, खेल, मनोरंजन और स्थानीय खबरों की ताज़ा जानकारी पाते रहें।
           </p>
 
           <div className="mt-8 space-y-4">
@@ -48,7 +47,7 @@ export default function FollowPage() {
               rel="noopener noreferrer"
               className="block w-full rounded-lg bg-red-600 px-4 py-3 font-bold text-white hover:bg-red-700"
             >
-              ▶ YouTube पर हमें फ़ॉलो करें
+              YouTube पर हमें Subscribe करें
             </a>
 
             <a
@@ -57,7 +56,7 @@ export default function FollowPage() {
               rel="noopener noreferrer"
               className="block w-full rounded-lg bg-black px-4 py-3 font-bold text-white hover:bg-gray-800"
             >
-              𝕏 हमें फ़ॉलो करें
+              𝕏 पर हमें फ़ॉलो करें
             </a>
 
             <a
@@ -66,7 +65,7 @@ export default function FollowPage() {
               rel="noopener noreferrer"
               className="block w-full rounded-lg bg-pink-600 px-4 py-3 font-bold text-white hover:bg-pink-700"
             >
-              ◎ Instagram पर हमें फ़ॉलो करें
+              Instagram पर हमें फ़ॉलो करें
             </a>
 
             <a
@@ -75,7 +74,7 @@ export default function FollowPage() {
               rel="noopener noreferrer"
               className="block w-full rounded-lg bg-blue-600 px-4 py-3 font-bold text-white hover:bg-blue-700"
             >
-              f Facebook पर हमें फ़ॉलो करें
+              Facebook पर हमें फ़ॉलो करें
             </a>
           </div>
 
@@ -92,9 +91,3 @@ export default function FollowPage() {
     </main>
   );
 }
-
-
-
-
-
-

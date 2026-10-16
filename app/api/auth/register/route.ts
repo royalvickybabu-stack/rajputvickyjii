@@ -1,13 +1,7 @@
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
-
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -25,7 +19,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!password || password.length < 6) {
+    if (typeof password !== "string" || password.length < 6) {
       return NextResponse.json(
         { error: "Password kam se kam 6 characters ka hona chahiye." },
         { status: 400 }
@@ -78,7 +72,5 @@ export async function POST(request: Request) {
       { error: "Account create karne me problem hui." },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

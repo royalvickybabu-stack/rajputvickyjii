@@ -1,6 +1,13 @@
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import {
+  createUserToken,
+  USER_COOKIE,
+  userCookieOptions,
+} from "@/lib/user-auth";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -29,7 +36,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!passwordMatch) {
       return NextResponse.json(
@@ -47,6 +57,12 @@ export async function POST(request: Request) {
         mobile: user.mobile,
       },
     });
+
+    response.cookies.set(
+      USER_COOKIE,
+      createUserToken(user.id),
+      userCookieOptions
+    );
 
     return response;
   } catch (error) {
