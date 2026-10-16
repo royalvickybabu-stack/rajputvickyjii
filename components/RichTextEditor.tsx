@@ -30,15 +30,24 @@ export default function RichTextEditor({
     }
   }, [value]);
 
-  function runCommand(
-    command: string,
-    commandValue?: string
-  ) {
+  function runCommand(command: string, commandValue?: string) {
     const editor = editorRef.current;
     if (!editor) return;
 
     editor.focus();
     document.execCommand(command, false, commandValue);
+    onChange(editor.innerHTML);
+  }
+
+  function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
+    event.preventDefault();
+
+    const pastedText = event.clipboardData.getData("text/plain");
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand("insertText", false, pastedText);
     onChange(editor.innerHTML);
   }
 
@@ -124,11 +133,7 @@ export default function RichTextEditor({
         <button type="button" className={buttonClass} onClick={addLink}>
           Add link to selection
         </button>
-        <button
-          type="button"
-          className={buttonClass}
-          onClick={() => setPreview((current) => !current)}
-        >
+        <button type="button" className={buttonClass} onClick={() => setPreview((current) => !current)}>
           {preview ? "Edit" : "Preview"}
         </button>
       </div>
@@ -148,11 +153,14 @@ export default function RichTextEditor({
           aria-multiline="true"
           data-placeholder={placeholder}
           onInput={(e) => onChange(e.currentTarget.innerHTML)}
-          className="min-h-72 whitespace-normal px-4 py-4 text-base leading-8 text-gray-800 outline-none empty:before:text-gray-400 empty:before:content-[attr(data-placeholder)]"
+          onPaste={handlePaste}
+          className="min-h-72 whitespace-normal bg-white px-4 py-4 text-base leading-8 text-black outline-none empty:before:text-gray-400 empty:before:content-[attr(data-placeholder)]"
         />
       )}
+
       <p className="border-t bg-gray-50 px-4 py-2 text-xs text-gray-500">
         Formatting के लिए text चुनें, फिर ऊपर button दबाएँ। Preview से खबर जाँचें।
+        Copy-paste करने पर text plain format में आएगा ताकि वह साफ दिखाई दे।
       </p>
     </div>
   );
