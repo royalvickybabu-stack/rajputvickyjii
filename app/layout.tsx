@@ -1,5 +1,4 @@
-
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -16,8 +15,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "लोक मचान",
-  description: "आपकी आवाज़, हमारा मंच",
+  metadataBase: new URL("https://www.lokmachan.in"),
+  title: {
+    default: "लोक मचान | हिंदी न्यूज़",
+    template: "%s | लोक मचान",
+  },
+  description:
+    "लोक मचान पर पढ़ें ताज़ा हिंदी समाचार, स्थानीय खबरें और देश-दुनिया की अहम अपडेट। आपकी आवाज़, हमारा मंच।",
+  applicationName: "लोक मचान",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "hi_IN",
+    url: "https://www.lokmachan.in/",
+    siteName: "लोक मचान",
+    title: "लोक मचान | हिंदी न्यूज़",
+    description:
+      "ताज़ा हिंदी समाचार, स्थानीय खबरें और देश-दुनिया की अहम अपडेट।",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "लोक मचान | हिंदी न्यूज़",
+    description:
+      "ताज़ा हिंदी समाचार, स्थानीय खबरें और देश-दुनिया की अहम अपडेट।",
+  },
   icons: { icon: "/icon.png" },
 };
 
