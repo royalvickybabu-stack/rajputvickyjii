@@ -1,5 +1,4 @@
-﻿
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -10,7 +9,7 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const geistMono = Geist({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
@@ -54,18 +53,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        {/* Google AdSense verification code */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6867912638299432"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
 
+        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VTCY1YFW88"
           strategy="afterInteractive"
         />
-
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -75,7 +75,6 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-
       <body className="min-h-full flex flex-col">
         <SiteHeader />
         {children}
