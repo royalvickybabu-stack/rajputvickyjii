@@ -19,15 +19,19 @@ export const dynamic = "force-dynamic";
 const SITE_URL = "https://www.lokmachan.in";
 
 async function getNewsBySlug(rawSlug: string) {
-  const decodedSlug = decodeURIComponent(rawSlug).trim();
+  let decodedSlug: string;
 
-  const news = await prisma.news.findUnique({
+  try {
+    decodedSlug = decodeURIComponent(rawSlug).trim();
+  } catch {
+    return null;
+  }
+
+  return prisma.news.findUnique({
     where: {
       slug: decodedSlug,
     },
   });
-
-  return news;
 }
 
 export async function generateMetadata({
@@ -47,7 +51,9 @@ export async function generateMetadata({
     };
   }
 
-  const cleanText = (news.shortContent || news.content || "")
+  const cleanText = decodeNewsEntities(
+    news.shortContent || news.content || ""
+  )
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -117,6 +123,40 @@ export default async function NewsPage({ params }: PageProps) {
 
   const decodedContent = decodeNewsEntities(content);
 
+  const cleanDescription = decodeNewsEntities(
+    news.shortContent || news.content || ""
+  )
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 300);
+
+  const articleUrl = `${SITE_URL}/news/${encodeURIComponent(news.slug)}`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: news.title,
+    description: cleanDescription || news.title,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+    datePublished: news.createdAt.toISOString(),
+    dateModified: news.updatedAt.toISOString(),
+    author: {
+      "@type": "Organization",
+      name: "लोक मचान",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "लोक मचान",
+    },
+    ...(news.category ? { articleSection: news.category } : {}),
+    ...(news.image ? { image: [news.image] } : {}),
+    inLanguage: "hi-IN",
+  };
+
   const containsHtml =
     /<\/?(p|br|strong|b|em|i|u|h[1-6]|ul|ol|li|a|blockquote|div)\b/i.test(
       decodedContent
@@ -166,6 +206,13 @@ export default async function NewsPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-gray-100 text-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <article className="mx-auto max-w-5xl px-4 py-8 md:py-12">
         <div className="overflow-hidden rounded-2xl bg-white shadow-lg">
           {news.image ? (

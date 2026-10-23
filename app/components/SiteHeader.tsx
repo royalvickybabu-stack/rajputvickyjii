@@ -69,7 +69,7 @@ export default function SiteHeader() {
 
       {/* HEADER */}
       <header className="bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:gap-0 sm:px-4 sm:py-4">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-2 py-2 sm:flex-row sm:items-center sm:gap-0 sm:px-4 sm:py-4">
           <Link
             href="/"
             className="flex min-w-0 items-center gap-2 sm:gap-3"
@@ -77,21 +77,21 @@ export default function SiteHeader() {
             <img
               src="/logo.png.png"
               alt="लोक मचान"
-              className="h-14 w-auto shrink-0 object-contain sm:h-20"
+              className="h-10 w-auto shrink-0 object-contain sm:h-20"
             />
 
             <div className="min-w-0">
-              <h1 className="text-2xl font-extrabold text-black sm:text-3xl">
+              <h1 className="text-xl font-extrabold text-black sm:text-3xl">
                 लोक मचान
               </h1>
 
-              <p className="text-xs text-gray-500 sm:text-sm">
+              <p className="text-[11px] text-gray-500 sm:text-sm">
                 आपकी आवाज़, हमारा मंच
               </p>
             </div>
           </Link>
 
-          <div className="flex w-full flex-wrap items-center justify-start gap-2 sm:ml-auto sm:w-auto sm:flex-nowrap sm:gap-3">
+          <div className="flex w-full flex-wrap items-center justify-center gap-1 sm:ml-auto sm:w-auto sm:flex-nowrap sm:gap-3">
             <NotificationButton />
 
             <Link

@@ -1,4 +1,5 @@
-﻿import type { Metadata } from "next";
+﻿
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -54,9 +55,17 @@ export default function RootLayout({
     >
       <head>
         <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6867912638299432"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VTCY1YFW88"
           strategy="afterInteractive"
         />
+
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -66,6 +75,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
+
       <body className="min-h-full flex flex-col">
         <SiteHeader />
         {children}

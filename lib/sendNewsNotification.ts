@@ -9,7 +9,7 @@ export async function sendNewsNotification(
     await prisma.notificationSubscription.findMany();
 
   const notificationPayload = JSON.stringify({
-    title: "ðŸ”” à¤²à¥‹à¤• à¤®à¤šà¤¾à¤¨ à¤ªà¤° à¤¨à¤ˆ à¤–à¤¬à¤°",
+    title: "🔔 लोक मचान पर नई खबर",
     body: title,
     url: `/news/${slug}`,
   });
@@ -53,4 +53,5 @@ export async function sendNewsNotification(
     }
   }
 }
+
 
