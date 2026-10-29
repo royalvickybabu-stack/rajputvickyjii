@@ -158,7 +158,7 @@ export default async function NewsPage({ params }: PageProps) {
   };
 
   const containsHtml =
-    /<\/?(p|br|strong|b|em|i|u|h[1-6]|ul|ol|li|a|blockquote|div)\b/i.test(
+    /<\/?(p|br|strong|b|em|i|u|h[1-6]|ul|ol|li|a|blockquote|div|img)\b/i.test(
       decodedContent
     );
 
@@ -184,9 +184,11 @@ export default async function NewsPage({ params }: PageProps) {
           "a",
           "blockquote",
           "div",
+          "img",
         ],
         allowedAttributes: {
           a: ["href", "target", "rel"],
+          img: ["src", "alt", "title", "width", "height", "loading"],
           "*": ["style"],
         },
         allowedSchemes: ["http", "https", "mailto"],

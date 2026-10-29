@@ -2,6 +2,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
 
 type RichTextEditorProps = {
   value: string;
@@ -9,159 +12,297 @@ type RichTextEditorProps = {
   placeholder?: string;
 };
 
-const buttonClass =
-  "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-700";
-
 export default function RichTextEditor({
   value,
   onChange,
   placeholder = "यहाँ पूरी खबर लिखें...",
 }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [preview, setPreview] = useState(false);
-  const [linkUrl, setLinkUrl] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const savedPositionRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor || document.activeElement === editor) return;
+    setMounted(true);
+  }, []);
 
-    if (editor.innerHTML !== value) {
-      editor.innerHTML = value || "";
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image.configure({
+        inline: false,
+        allowBase64: false,
+      }),
+    ],
+    content: value || "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        "aria-label": placeholder,
+        class:
+          "min-h-[220px] w-full rounded-md border border-gray-300 bg-white p-3 text-sm leading-7 text-gray-900 outline-none",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const current = editor.getHTML();
+    const incoming = value || "";
+
+    if (incoming !== current) {
+      editor.commands.setContent(incoming || "", {
+        emitUpdate: false,
+      });
     }
-  }, [value]);
+  }, [editor, value]);
 
-  function runCommand(command: string, commandValue?: string) {
-    const editor = editorRef.current;
-    if (!editor) return;
+  async function handleInlineImage(file: File | undefined) {
+    if (!file || !editor) return;
 
-    editor.focus();
-    document.execCommand(command, false, commandValue);
-    onChange(editor.innerHTML);
-  }
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
 
-  function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
-    event.preventDefault();
-
-    const pastedText = event.clipboardData.getData("text/plain");
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    editor.focus();
-    document.execCommand("insertText", false, pastedText);
-    onChange(editor.innerHTML);
-  }
-
-  function addLink() {
-    const url = linkUrl.trim();
-    if (!url) return;
-
-    try {
-      const parsed = new URL(url);
-      if (!["http:", "https:", "mailto:"].includes(parsed.protocol)) {
-        alert("कृपया सही web link डालें।");
-        return;
-      }
-    } catch {
-      alert("कृपया पूरा link डालें, जैसे https://example.com");
+    if (!allowedTypes.includes(file.type)) {
+      alert("केवल JPG, PNG, WEBP या GIF image जोड़ें।");
       return;
     }
 
-    runCommand("createLink", url);
-    setLinkUrl("");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image का size 5 MB से अधिक नहीं होना चाहिए।");
+      return;
+    }
+
+    setImageUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || "Image upload नहीं हुई।");
+      }
+
+      const maxPosition = editor.state.doc.content.size;
+      const savedPosition = Math.min(
+        savedPositionRef.current ?? editor.state.selection.from,
+        maxPosition
+      );
+
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(savedPosition)
+        .setImage({
+          src: data.url,
+          alt: file.name,
+        })
+        .run();
+
+      savedPositionRef.current = null;
+    } catch (error) {
+      console.error(error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Image upload करने में समस्या हुई।"
+      );
+    } finally {
+      setImageUploading(false);
+
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+    }
   }
 
+  if (!mounted || !editor) {
+    return (
+      <div className="min-h-[220px] rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-500">
+        Editor loading...
+      </div>
+    );
+  }
+
+  const buttonClass = (active: boolean) =>
+    `rounded border px-3 py-1.5 text-sm ${
+      active
+        ? "border-gray-800 bg-gray-800 text-white"
+        : "border-gray-300 bg-white text-gray-800 hover:bg-gray-100"
+    }`;
+
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-300 bg-white">
-      <div className="flex flex-wrap items-center gap-2 border-b bg-gray-50 p-3">
-        <button type="button" className={buttonClass} onMouseDown={(e) => e.preventDefault()} onClick={() => runCommand("bold")} title="Bold">
-          <strong>B</strong>
-        </button>
-        <button type="button" className={buttonClass} onMouseDown={(e) => e.preventDefault()} onClick={() => runCommand("italic")} title="Italic">
-          <em>I</em>
-        </button>
-        <button type="button" className={buttonClass} onMouseDown={(e) => e.preventDefault()} onClick={() => runCommand("underline")} title="Underline">
-          <u>U</u>
-        </button>
-
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm"
-          defaultValue="p"
-          aria-label="Text style"
-          onChange={(e) => runCommand("formatBlock", e.target.value)}
+    <div className="w-full space-y-2">
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className={buttonClass(editor.isActive("bold"))}
+          onClick={() =>
+            editor.chain().focus().toggleBold().run()
+          }
         >
-          <option value="p">Paragraph</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="blockquote">Quote</option>
-        </select>
-
-        <button type="button" className={buttonClass} onClick={() => runCommand("insertUnorderedList")} title="Bullet list">
-          • Bullet
+          B
         </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("insertOrderedList")} title="Numbered list">
+
+        <button
+          type="button"
+          className={buttonClass(editor.isActive("italic"))}
+          onClick={() =>
+            editor.chain().focus().toggleItalic().run()
+          }
+        >
+          <i>I</i>
+        </button>
+
+        <button
+          type="button"
+          className={buttonClass(
+            editor.isActive("heading", { level: 2 })
+          )}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+        >
+          H2
+        </button>
+
+        <button
+          type="button"
+          className={buttonClass(
+            editor.isActive("heading", { level: 3 })
+          )}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
+        >
+          H3
+        </button>
+
+        <button
+          type="button"
+          className={buttonClass(editor.isActive("bulletList"))}
+          onClick={() =>
+            editor.chain().focus().toggleBulletList().run()
+          }
+        >
+          • List
+        </button>
+
+        <button
+          type="button"
+          className={buttonClass(editor.isActive("orderedList"))}
+          onClick={() =>
+            editor.chain().focus().toggleOrderedList().run()
+          }
+        >
           1. List
         </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("justifyLeft")} title="Align left">
-          ≡ Left
-        </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("justifyCenter")} title="Center">
-          ≡ Center
-        </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("justifyRight")} title="Align right">
-          ≡ Right
-        </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("undo")} title="Undo">
-          ↶ Undo
-        </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("redo")} title="Redo">
-          ↷ Redo
-        </button>
-        <button type="button" className={buttonClass} onClick={() => runCommand("removeFormat")} title="Clear formatting">
-          Clear
-        </button>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-b p-3">
+        <button
+          type="button"
+          className={buttonClass(false)}
+          disabled={imageUploading}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => {
+            savedPositionRef.current = editor.state.selection.from;
+            imageInputRef.current?.click();
+          }}
+        >
+          {imageUploading
+            ? "Image Upload हो रही है..."
+            : "📷 खबर के बीच में Image जोड़ें"}
+        </button>
+
         <input
-          value={linkUrl}
-          onChange={(e) => setLinkUrl(e.target.value)}
-          placeholder="https://example.com"
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          aria-label="Link URL"
+          ref={imageInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          hidden
+          onChange={(event) => {
+            void handleInlineImage(event.target.files?.[0]);
+          }}
         />
-        <button type="button" className={buttonClass} onClick={addLink}>
-          Add link to selection
-        </button>
-        <button type="button" className={buttonClass} onClick={() => setPreview((current) => !current)}>
-          {preview ? "Edit" : "Preview"}
+
+        <button
+          type="button"
+          className={buttonClass(false)}
+          onClick={() =>
+            editor.chain().focus().unsetAllMarks().run()
+          }
+        >
+          Clear formatting
         </button>
       </div>
 
-      {preview ? (
-        <div
-          className="prose max-w-none p-4 text-gray-800"
-          dangerouslySetInnerHTML={{ __html: value || "<p>Preview यहाँ दिखाई देगा।</p>" }}
-        />
-      ) : (
-        <div
-          ref={editorRef}
-          contentEditable
-          suppressContentEditableWarning
-          role="textbox"
-          aria-label="Full news content"
-          aria-multiline="true"
-          data-placeholder={placeholder}
-          onInput={(e) => onChange(e.currentTarget.innerHTML)}
-          onPaste={handlePaste}
-          className="min-h-72 whitespace-normal bg-white px-4 py-4 text-base leading-8 text-black outline-none empty:before:text-gray-400 empty:before:content-[attr(data-placeholder)]"
-        />
-      )}
-
-      <p className="border-t bg-gray-50 px-4 py-2 text-xs text-gray-500">
-        Formatting के लिए text चुनें, फिर ऊपर button दबाएँ। Preview से खबर जाँचें।
-        Copy-paste करने पर text plain format में आएगा ताकि वह साफ दिखाई दे।
+      <p className="text-xs text-gray-500">
+        पहले खबर में जहाँ image चाहिए वहाँ cursor रखें, फिर image जोड़ें।
+        एक खबर में कई images लगा सकते हैं।
       </p>
+
+      <EditorContent editor={editor} />
+
+      <style jsx global>{`
+        .tiptap p {
+          margin: 0 0 0.75rem;
+        }
+
+        .tiptap h2 {
+          font-size: 1.35rem;
+          font-weight: 700;
+          margin: 1rem 0 0.5rem;
+        }
+
+        .tiptap h3 {
+          font-size: 1.15rem;
+          font-weight: 700;
+          margin: 0.75rem 0 0.5rem;
+        }
+
+        .tiptap ul {
+          list-style: disc;
+          padding-left: 1.5rem;
+        }
+
+        .tiptap ol {
+          list-style: decimal;
+          padding-left: 1.5rem;
+        }
+
+        .tiptap strong {
+          font-weight: 700;
+        }
+
+        .tiptap em {
+          font-style: italic;
+        }
+
+        .tiptap img {
+          display: block;
+          max-width: 100%;
+          height: auto;
+          margin: 1rem auto;
+          border-radius: 0.5rem;
+        }
+
+        .tiptap:focus {
+          outline: none;
+        }
+      `}</style>
     </div>
   );
 }
