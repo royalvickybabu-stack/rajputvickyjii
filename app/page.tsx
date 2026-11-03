@@ -1,7 +1,7 @@
-
-import Link from "next/link";
+﻿import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { stripNewsHtml } from "@/lib/news-content";
+import LatestNewsTicker from "@/app/components/LatestNewsTicker";
 
 export const dynamic = "force-dynamic";
 
@@ -41,27 +41,9 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-gray-100 text-gray-900">
       {/* TRENDING */}
-      <div className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-4 sm:px-4 sm:py-3">
-          <span className="whitespace-nowrap font-bold text-red-600">
-            ताज़ा खबरें ⚡
-          </span>
+<LatestNewsTicker news={normalNews.slice(0, 5)} />
 
-          <div className="flex gap-6 overflow-hidden text-sm">
-            {normalNews.slice(0, 5).map((item) => (
-              <Link
-                key={item.id}
-                href={getNewsUrl(item.slug)}
-                className="whitespace-nowrap hover:text-red-600"
-              >
-                {item.title}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* AD SPACE */}
+{/* AD SPACE */}
       <div className="mx-auto max-w-7xl px-4">
         <div className="h-8 w-full sm:h-24" />
       </div>
@@ -326,3 +308,4 @@ export default async function Home() {
     </main>
   );
 }
+
