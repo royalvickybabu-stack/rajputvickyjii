@@ -1014,8 +1014,12 @@ export default function AdminPage() {
 
                       {item.content ? (
                         <p className="mt-3 line-clamp-2 text-sm text-gray-600">
-                          {item.content}
-                        </p>
+                            {item.content
+                              .replace(/<[^>]*>/g, " ")
+                              .replace(/&nbsp;|&#160;/gi, " ")
+                              .replace(/\s+/g, " ")
+                              .trim()}
+                          </p>
                       ) : (
                         <p className="mt-3 text-sm font-semibold text-blue-600">
                           यह 60 Words वाली खबर है।
