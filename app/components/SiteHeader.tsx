@@ -53,11 +53,12 @@ export default function SiteHeader() {
                 <span className="text-gray-400">|</span>
 
                 <span className="font-medium">
-                  {currentTime.toLocaleTimeString("hi-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
+                  {currentTime.toLocaleTimeString("en-IN", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+})}
                 </span>
               </>
             ) : (
