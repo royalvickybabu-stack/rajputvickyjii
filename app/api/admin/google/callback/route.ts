@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   ADMIN_COOKIE,
   adminCookieOptions,
@@ -36,8 +36,8 @@ export async function GET(request: Request) {
 
   const savedState = stateCookie ? decodeURIComponent(stateCookie) : "";
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = process.env.ADMIN_GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.ADMIN_GOOGLE_CLIENT_SECRET;
   const redirectUri = process.env.ADMIN_GOOGLE_REDIRECT_URI;
   const allowedEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminId = process.env.ADMIN_ID?.trim();

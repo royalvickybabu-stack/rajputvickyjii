@@ -1,10 +1,10 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = process.env.ADMIN_GOOGLE_CLIENT_ID;
   const redirectUri = process.env.ADMIN_GOOGLE_REDIRECT_URI;
 
   if (!clientId || !redirectUri) {
