@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -91,7 +91,7 @@ export default function SiteHeader() {
             </div>
           </Link>
 
-          <div className="flex w-full flex-wrap items-center justify-center gap-1 sm:ml-auto sm:w-auto sm:flex-nowrap sm:gap-3">
+          <div className="flex w-full flex-wrap items-center justify-start gap-1 sm:ml-auto sm:w-auto sm:justify-center sm:flex-nowrap sm:gap-3">
             <NotificationButton />
 
             <Link

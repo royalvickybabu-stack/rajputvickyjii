@@ -104,7 +104,7 @@ export default function NotificationButton() {
   }
 
   return (
-    <div className="w-full max-w-full text-center">
+    <div className="w-full max-w-full text-left sm:text-center">
       <button
         type="button"
         onClick={enableNotifications}
