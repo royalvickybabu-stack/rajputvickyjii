@@ -1,4 +1,4 @@
-
+﻿
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
@@ -204,26 +204,6 @@ export async function PUT(request: Request, context: Context) {
       }
     }
 
-    if (existing._count.votes > 0) {
-      const oldOptions = existing.options.map((option) => ({
-        text: option.text,
-        description: option.description,
-        image: option.image,
-      }));
-
-      const newOptions = options.map((option) => ({
-        text: option.text,
-        description: option.description,
-        image: option.image,
-      }));
-
-      if (JSON.stringify(oldOptions) !== JSON.stringify(newOptions)) {
-        return error(
-          "This survey already has votes. Its options cannot be changed to protect voting history."
-        );
-      }
-    }
-
     const survey = await prisma.$transaction(async (tx) => {
       if (existing.type === "POLL" && type === "DIRECT") {
         await tx.surveyOption.deleteMany({
@@ -303,3 +283,4 @@ export async function DELETE(request: Request, context: Context) {
     return error("Survey delete failed.", 500);
   }
 }
+
