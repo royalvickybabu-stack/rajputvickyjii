@@ -1,4 +1,4 @@
-﻿
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -276,7 +276,7 @@ fileRefs.current.forEach((input) => {
 
       <form
         onSubmit={saveSurvey}
-        className="space-y-6 rounded-2xl border bg-white p-4 shadow-sm sm:p-6"
+        className="space-y-6 rounded-2xl border bg-white p-4 text-gray-900 shadow-sm sm:p-6"
       >
         <h2 className="text-xl font-bold">
           {editingId ? "Edit Survey" : "Create New Survey"}
@@ -292,7 +292,7 @@ fileRefs.current.forEach((input) => {
             required
             maxLength={300}
             placeholder="Apna survey question likhein..."
-            className="w-full rounded-lg border p-3 outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500"
           />
         </div>
 
@@ -305,7 +305,7 @@ fileRefs.current.forEach((input) => {
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="Survey ke baare mein jankari..."
-            className="w-full rounded-lg border p-3 outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400 outline-none focus:border-blue-500"
           />
         </div>
 <div>
@@ -315,7 +315,7 @@ fileRefs.current.forEach((input) => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full rounded-lg border p-3"
+            className="w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400"
           >
             <option value="POLL">Option Based Poll</option>
             <option value="DIRECT">Direct Answer Survey</option>
@@ -338,7 +338,7 @@ fileRefs.current.forEach((input) => {
             {options.map((option, index) => (
               <div
                 key={index}
-                className="space-y-3 rounded-xl border bg-gray-50 p-4"
+                className="space-y-3 rounded-xl border bg-gray-50 p-4 text-gray-900"
               >
                 <div className="flex items-center justify-between">
                   <strong>Option {index + 1}</strong>
@@ -360,7 +360,7 @@ fileRefs.current.forEach((input) => {
                   }
                   maxLength={200}
                   placeholder="Option ka naam..."
-                  className="w-full rounded-lg border p-3"
+                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400"
                 />
 
                 <textarea
@@ -371,7 +371,7 @@ fileRefs.current.forEach((input) => {
                   maxLength={500}
                   rows={2}
                   placeholder="Option description (Optional)"
-                  className="w-full rounded-lg border p-3"
+                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400"
                 />
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -481,7 +481,7 @@ fileRefs.current.forEach((input) => {
           surveys.map((survey) => (
             <div
               key={survey.id}
-              className="flex flex-col justify-between gap-4 rounded-xl border bg-white p-4 sm:flex-row sm:items-center"
+              className="flex flex-col justify-between gap-4 rounded-xl border bg-white p-4 text-gray-900 sm:flex-row sm:items-center"
             >
               <div className="flex items-start gap-3">
 
