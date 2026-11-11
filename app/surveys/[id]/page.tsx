@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import NewsShareActions from "../../components/NewsShareActions";
 
 type Option = {
   id: number;
@@ -475,6 +476,7 @@ export default function SurveyDetailPage() {
     </main>
   );
 }
+
 
 
 
