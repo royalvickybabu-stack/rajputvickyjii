@@ -12,6 +12,7 @@ function getNewsUrl(slug: string) {
 export default async function Home() {
   let news: Awaited<ReturnType<typeof prisma.news.findMany>> = [];
   let loadError = false;
+  let latestSurvey: { id: number; title: string } | null = null;
 
   try {
     news = await prisma.news.findMany({
@@ -23,6 +24,15 @@ export default async function Home() {
     loadError = true;
   }
 
+  try {
+    latestSurvey = await prisma.survey.findFirst({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, title: true },
+    });
+  } catch (error) {
+    console.error("Homepage survey loading error:", error);
+  }
   const shortNews = news.filter(
     (item) => item.shortContent?.trim()
   );
@@ -48,6 +58,27 @@ export default async function Home() {
         <div className="h-8 w-full sm:h-24" />
       </div>
 
+      {/* LATEST PUBLISHED SURVEY */}
+      {latestSurvey && (
+        <div className="mx-auto max-w-7xl px-4">
+          <Link
+            href={`/surveys/${latestSurvey.id}`}
+            className="flex flex-col gap-3 rounded-xl border border-red-200 bg-white p-4 shadow-sm transition hover:border-red-400 hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-5"
+          >
+            <div className="min-w-0">
+              <span className="mb-2 inline-block rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+                जनमत सर्वेक्षण
+              </span>
+              <h2 className="text-base font-bold leading-relaxed text-gray-900 sm:text-lg">
+                {latestSurvey.title}
+              </h2>
+            </div>
+            <span className="shrink-0 rounded-lg bg-red-600 px-5 py-3 text-center text-sm font-bold text-white">
+              अपना वोट दें →
+            </span>
+          </Link>
+        </div>
+      )}
       {/* MAIN CONTENT */}
       <div className="mx-auto max-w-7xl px-2 py-2 sm:px-4 sm:py-6">
         {/* MAIN NEWS HEADER AND RESPONSIVE NEWS LAYOUT */}
@@ -308,4 +339,5 @@ export default async function Home() {
     </main>
   );
 }
+
 
