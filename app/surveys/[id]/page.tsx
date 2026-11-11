@@ -197,7 +197,7 @@ export default function SurveyDetailPage() {
           href="/surveys"
           className="mb-6 inline-block text-sm font-semibold text-red-600"
         >
-          â† All Surveys
+          &larr; All Surveys
         </Link>
 
         <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
@@ -475,6 +475,7 @@ export default function SurveyDetailPage() {
     </main>
   );
 }
+
 
 
 
