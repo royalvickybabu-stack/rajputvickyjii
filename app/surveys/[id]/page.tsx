@@ -413,7 +413,7 @@ export default function SurveyDetailPage() {
 
               {survey.votes.length === 0 ? (
                 <p className="text-sm text-gray-500">
-                  Abhi koi public comment nahi hai.
+                  अभी तक कोई सार्वजनिक टिप्पणी नहीं आई है।
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -475,6 +475,7 @@ export default function SurveyDetailPage() {
     </main>
   );
 }
+
 
 
 
