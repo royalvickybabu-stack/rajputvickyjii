@@ -1,9 +1,10 @@
-﻿
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 
 type SurveyOption = {
+  id?: number;
   text: string;
   description: string;
   image: string;
@@ -158,6 +159,7 @@ fileRefs.current.forEach((input) => {
       setOptions(
         data.options?.length
           ? data.options.map((item: SurveyOption) => ({
+              id: item.id,
               text: item.text,
               description: item.description || "",
               image: item.image || "",
@@ -200,6 +202,7 @@ fileRefs.current.forEach((input) => {
         options:
           type === "POLL"
             ? options.map((item) => ({
+                id: item.id,
                 text: item.text.trim(),
                 description: item.description.trim(),
                 image: item.image || null,
@@ -358,6 +361,7 @@ fileRefs.current.forEach((input) => {
 
                 <input
                   value={option.text}
+                  disabled={index < lockedOptionCount}
                   onChange={(e) =>
                     updateOption(index, "text", e.target.value)
                   }
@@ -368,6 +372,7 @@ fileRefs.current.forEach((input) => {
 
                 <textarea
                   value={option.description}
+                  disabled={index < lockedOptionCount}
                   onChange={(e) =>
                     updateOption(index, "description", e.target.value)
                   }
@@ -384,6 +389,7 @@ fileRefs.current.forEach((input) => {
                     }}
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
+                    disabled={index < lockedOptionCount}
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -394,7 +400,7 @@ fileRefs.current.forEach((input) => {
 
                   <button
                     type="button"
-                    disabled={uploading !== null}
+                    disabled={uploading !== null || index < lockedOptionCount}
                     onClick={() => fileRefs.current[index]?.click()}
                     className="rounded-lg border bg-white px-4 py-2 text-sm disabled:opacity-50"
                   >
@@ -408,6 +414,7 @@ fileRefs.current.forEach((input) => {
                   {option.image && (
                     <button
                       type="button"
+                      disabled={index < lockedOptionCount}
                       onClick={() => updateOption(index, "image", "")}
                       className="text-sm text-red-600"
                     >
@@ -540,5 +547,3 @@ fileRefs.current.forEach((input) => {
     </main>
   );
 }
-
-

@@ -1,4 +1,4 @@
-﻿
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
@@ -150,6 +150,7 @@ export async function PUT(request: Request, context: Context) {
     }
 
     let options: {
+      id?: number;
       text: string;
       description: string | null;
       image: string | null;
@@ -164,6 +165,13 @@ export async function PUT(request: Request, context: Context) {
       try {
         options = body.options.map(
           (option: Record<string, unknown>, index: number) => {
+            const optionId =
+              typeof option.id === "number" && Number.isSafeInteger(option.id)
+                ? option.id
+                : undefined;
+            if (option.id !== undefined && optionId === undefined) {
+              throw new Error(`Option ${index + 1} has an invalid ID.`);
+            }
             const text =
               typeof option.text === "string" ? option.text.trim() : "";
 
@@ -190,6 +198,7 @@ export async function PUT(request: Request, context: Context) {
             }
 
             return {
+              id: optionId,
               text,
               description: desc || null,
               image: optionImage || null,
@@ -204,18 +213,72 @@ export async function PUT(request: Request, context: Context) {
       }
     }
 
+    if (
+      existing.type === "POLL" &&
+      type === "POLL" &&
+      existing._count.votes > 0
+    ) {
+      const existingIds = new Set(existing.options.map((option) => option.id));
+      const incomingIds = options
+        .filter((option) => option.id !== undefined)
+        .map((option) => option.id as number);
+
+      if (
+        incomingIds.length !== existing.options.length ||
+        new Set(incomingIds).size !== incomingIds.length ||
+        existing.options.some((option) => !incomingIds.includes(option.id))
+      ) {
+        return error("Existing poll options cannot be removed.");
+      }
+
+      if (options.some((option) => option.id !== undefined && !existingIds.has(option.id))) {
+        return error("Invalid option ID.");
+      }
+
+      for (const oldOption of existing.options) {
+        const incoming = options.find((option) => option.id === oldOption.id);
+
+        if (
+          !incoming ||
+          incoming.text !== oldOption.text ||
+          incoming.description !== oldOption.description ||
+          incoming.image !== oldOption.image
+        ) {
+          return error("Existing poll options cannot be edited. Only new options can be added.");
+        }
+      }
+    }
     const survey = await prisma.$transaction(async (tx) => {
       if (existing.type === "POLL" && type === "DIRECT") {
         await tx.surveyOption.deleteMany({
           where: { surveyId: id },
         });
+      } else if (type === "POLL" && existing._count.votes > 0) {
+        const newOptions = options.filter((option) => option.id === undefined);
+        const nextPosition =
+          existing.options.reduce(
+            (max, option) => Math.max(max, option.position),
+            -1
+          ) + 1;
+
+        if (newOptions.length > 0) {
+          await tx.surveyOption.createMany({
+            data: newOptions.map((option, index) => ({
+              text: option.text,
+              description: option.description,
+              image: option.image,
+              position: nextPosition + index,
+              surveyId: id,
+            })),
+          });
+        }
       } else if (type === "POLL" && existing._count.votes === 0) {
         await tx.surveyOption.deleteMany({
           where: { surveyId: id },
         });
 
         await tx.surveyOption.createMany({
-          data: options.map((option) => ({
+          data: options.map(({ id: _optionId, ...option }) => ({
             ...option,
             surveyId: id,
           })),
@@ -283,6 +346,3 @@ export async function DELETE(request: Request, context: Context) {
     return error("Survey delete failed.", 500);
   }
 }
-
-
-
