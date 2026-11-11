@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -43,6 +43,7 @@ export default function SurveyAdminPage() {
   const [uploading, setUploading] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [lockedOptionCount, setLockedOptionCount] = useState(0);
 
   const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -130,6 +131,7 @@ export default function SurveyAdminPage() {
     setPublished(false);
     setOptions([emptyOption(), emptyOption()]);
     setEditingId(null);
+    setLockedOptionCount(0);
     setMessage("");
 fileRefs.current.forEach((input) => {
       if (input) input.value = "";
@@ -151,6 +153,7 @@ fileRefs.current.forEach((input) => {
       setDescription(data.description || "");
       setType(data.type);
       setPublished(data.published);
+      setLockedOptionCount(data._count?.votes > 0 ? (data.options?.length || 0) : 0);
 
       setOptions(
         data.options?.length
@@ -342,7 +345,7 @@ fileRefs.current.forEach((input) => {
               >
                 <div className="flex items-center justify-between">
                   <strong>Option {index + 1}</strong>
-                  {options.length > 2 && (
+                  {index >= lockedOptionCount && options.length > Math.max(2, lockedOptionCount) && (
                     <button
                       type="button"
                       onClick={() => removeOption(index)}
@@ -489,9 +492,9 @@ fileRefs.current.forEach((input) => {
                   <h3 className="font-bold">{survey.title}</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     {survey.type === "POLL" ? "Option Poll" : "Direct Answer"}
-                    {" Â· "}
+                    {" Ã‚Â· "}
                     {survey._count?.votes ?? 0} votes
-                    {" Â· "}
+                    {" Ã‚Â· "}
                     {survey._count?.responses ?? 0} answers
                   </p>
                   <span
@@ -537,4 +540,5 @@ fileRefs.current.forEach((input) => {
     </main>
   );
 }
+
 
