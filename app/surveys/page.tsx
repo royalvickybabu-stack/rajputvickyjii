@@ -58,7 +58,7 @@ export default function SurveysPage() {
           </h1>
 
           <p className="mt-3 text-gray-600">
-            Apni rai dein, voting karein aur dekhein log kya sochte hain.
+            अपनी राय दें, वोट करें और जानें कि लोग क्या सोचते हैं।
           </p>
         </div>
 
@@ -155,4 +155,5 @@ export default function SurveysPage() {
     </main>
   );
 }
+
 
