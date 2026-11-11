@@ -215,6 +215,9 @@ export default function SurveyDetailPage() {
               {survey.description}
             </p>
           )}
+          <div className="mt-4">
+            <NewsShareActions title={survey.title} showComments={false} />
+          </div>
 
           <div className="mt-5 flex flex-wrap gap-4 border-b border-gray-100 pb-5 text-sm text-gray-500">
             <span>
@@ -476,6 +479,7 @@ export default function SurveyDetailPage() {
     </main>
   );
 }
+
 
 
 
