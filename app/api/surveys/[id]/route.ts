@@ -213,39 +213,32 @@ export async function PUT(request: Request, context: Context) {
       }
     }
 
+    let newOptionsToAdd: typeof options = [];
+
     if (
       existing.type === "POLL" &&
       type === "POLL" &&
       existing._count.votes > 0
     ) {
-      const existingIds = new Set(existing.options.map((option) => option.id));
-      const incomingIds = options
-        .filter((option) => option.id !== undefined)
-        .map((option) => option.id as number);
+      const unmatchedExisting = [...existing.options];
 
-      if (
-        incomingIds.length !== existing.options.length ||
-        new Set(incomingIds).size !== incomingIds.length ||
-        existing.options.some((option) => !incomingIds.includes(option.id))
-      ) {
-        return error("Existing poll options cannot be removed.");
-      }
+      for (const incoming of options) {
+        const matchIndex = unmatchedExisting.findIndex(
+          (old) =>
+            old.text === incoming.text &&
+            (old.description ?? null) === incoming.description &&
+            (old.image ?? null) === incoming.image
+        );
 
-      if (options.some((option) => option.id !== undefined && !existingIds.has(option.id))) {
-        return error("Invalid option ID.");
-      }
-
-      for (const oldOption of existing.options) {
-        const incoming = options.find((option) => option.id === oldOption.id);
-
-        if (
-          !incoming ||
-          incoming.text !== oldOption.text ||
-          incoming.description !== oldOption.description ||
-          incoming.image !== oldOption.image
-        ) {
-          return error("Existing poll options cannot be edited. Only new options can be added.");
+        if (matchIndex >= 0) {
+          unmatchedExisting.splice(matchIndex, 1);
+        } else {
+          newOptionsToAdd.push(incoming);
         }
+      }
+
+      if (unmatchedExisting.length > 0) {
+        return error("Existing poll options cannot be removed or edited.");
       }
     }
     const survey = await prisma.$transaction(async (tx) => {
@@ -254,7 +247,7 @@ export async function PUT(request: Request, context: Context) {
           where: { surveyId: id },
         });
       } else if (type === "POLL" && existing._count.votes > 0) {
-        const newOptions = options.filter((option) => option.id === undefined);
+        const newOptions = newOptionsToAdd;
         const nextPosition =
           existing.options.reduce(
             (max, option) => Math.max(max, option.position),
