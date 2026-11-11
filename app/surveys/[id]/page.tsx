@@ -292,7 +292,7 @@ export default function SurveyDetailPage() {
                   onChange={(e) => setName(e.target.value)}
                   maxLength={80}
                   placeholder="Your name (optional)"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 outline-none focus:border-red-500"
                 />
 
                 <textarea
@@ -301,13 +301,13 @@ export default function SurveyDetailPage() {
                   maxLength={1000}
                   rows={3}
                   placeholder="Comment (optional)"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 outline-none focus:border-red-500"
                 />
 
                 <button
                   onClick={submitVote}
                   disabled={submitting || !selectedOption}
-                  className="w-full rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-100"
                 >
                   {submitting ? "Submitting..." : "Submit Vote"}
                 </button>
@@ -326,7 +326,7 @@ export default function SurveyDetailPage() {
                 onChange={(e) => setName(e.target.value)}
                 maxLength={80}
                 placeholder="Your name"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 outline-none focus:border-red-500"
               />
 
               <textarea
@@ -335,13 +335,13 @@ export default function SurveyDetailPage() {
                 maxLength={2000}
                 rows={5}
                 placeholder="Apna answer yahan likhein..."
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-red-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 outline-none focus:border-red-500"
               />
 
               <button
                 onClick={submitAnswer}
                 disabled={submitting || !name.trim() || !answer.trim()}
-                className="w-full rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg bg-red-600 px-5 py-3 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-100"
               >
                 {submitting ? "Submitting..." : "Submit Answer"}
               </button>
@@ -475,6 +475,7 @@ export default function SurveyDetailPage() {
     </main>
   );
 }
+
 
 
 
