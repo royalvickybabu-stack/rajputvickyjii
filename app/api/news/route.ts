@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendNewsNotification } from "@/lib/sendNewsNotification";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     const news = await prisma.news.findMany({
       where: isAdmin ? undefined : { published: true },
       orderBy: { createdAt: "desc" },
+      include: { reporter: true },
     });
 
     return NextResponse.json(news);
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News fetch à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
+      { error: "News fetch करने में समस्या हुई" },
       { status: 500 }
     );
   }
@@ -38,10 +39,17 @@ export async function POST(request: Request) {
     const slug = body.slug?.trim() || "";
     const content = body.content?.trim() || "";
     const shortContent = body.shortContent?.trim() || "";
+    const reporterId = body.reporterId == null || body.reporterId === "" ? null : Number(body.reporterId);
+    if (reporterId !== null && (!Number.isSafeInteger(reporterId) || reporterId <= 0)) {
+      return NextResponse.json({ error: "Invalid reporter ID." }, { status: 400 });
+    }
+    if (reporterId !== null && !(await prisma.reporter.findUnique({ where: { id: reporterId } }))) {
+      return NextResponse.json({ error: "Reporter not found." }, { status: 400 });
+    }
 
     if (!title || !slug) {
       return NextResponse.json(
-        { error: "Title à¤”à¤° slug à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¤‚à¥¤" },
+        { error: "Title और slug जरूरी हैं।" },
         { status: 400 }
       );
     }
@@ -50,7 +58,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "à¤¯à¤¾ à¤¤à¥‹ Full News Content à¤¯à¤¾ News in 60 Words à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¥¤",
+            "या तो Full News Content या News in 60 Words जरूरी है।",
         },
         { status: 400 }
       );
@@ -63,14 +71,15 @@ export async function POST(request: Request) {
         content,
         shortContent: shortContent || null,
         image: body.image || null,
-        category: body.category || "à¤…à¤¨à¥à¤¯",
+        category: body.category || "अन्य",
         language: body.language || "hi",
         isTrending: body.isTrending ?? false,
         published: body.published ?? true,
+        reporterId,
       },
     });
 
-    // à¤•à¥‡à¤µà¤² published news à¤•à¥‡ à¤²à¤¿à¤ notification à¤­à¥‡à¤œà¥‡à¤‚
+    // केवल published news के लिए notification भेजें
     if (news.published) {
       try {
         await sendNewsNotification(
@@ -90,7 +99,7 @@ export async function POST(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News create à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
+      { error: "News create करने में समस्या हुई" },
       { status: 500 }
     );
   }
@@ -105,7 +114,7 @@ export async function PUT(request: Request) {
 
     if (!body.id) {
       return NextResponse.json(
-        { error: "News ID à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆ" },
+        { error: "News ID जरूरी है" },
         { status: 400 }
       );
     }
@@ -114,10 +123,17 @@ export async function PUT(request: Request) {
     const slug = body.slug?.trim() || "";
     const content = body.content?.trim() || "";
     const shortContent = body.shortContent?.trim() || "";
+    const reporterId = body.reporterId == null || body.reporterId === "" ? null : Number(body.reporterId);
+    if (reporterId !== null && (!Number.isSafeInteger(reporterId) || reporterId <= 0)) {
+      return NextResponse.json({ error: "Invalid reporter ID." }, { status: 400 });
+    }
+    if (reporterId !== null && !(await prisma.reporter.findUnique({ where: { id: reporterId } }))) {
+      return NextResponse.json({ error: "Reporter not found." }, { status: 400 });
+    }
 
     if (!title || !slug) {
       return NextResponse.json(
-        { error: "Title à¤”à¤° slug à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¤‚à¥¤" },
+        { error: "Title और slug जरूरी हैं।" },
         { status: 400 }
       );
     }
@@ -126,7 +142,7 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         {
           error:
-            "à¤¯à¤¾ à¤¤à¥‹ Full News Content à¤¯à¤¾ News in 60 Words à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¥¤",
+            "या तो Full News Content या News in 60 Words जरूरी है।",
         },
         { status: 400 }
       );
@@ -142,10 +158,11 @@ export async function PUT(request: Request) {
         content,
         shortContent: shortContent || null,
         image: body.image || null,
-        category: body.category || "à¤…à¤¨à¥à¤¯",
+        category: body.category || "अन्य",
         language: body.language || "hi",
         isTrending: body.isTrending ?? false,
         published: body.published ?? true,
+        ...(Object.prototype.hasOwnProperty.call(body, "reporterId") ? { reporterId } : {}),
       },
     });
 
@@ -154,7 +171,7 @@ export async function PUT(request: Request) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News update à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
+      { error: "News update करने में समस्या हुई" },
       { status: 500 }
     );
   }
@@ -169,7 +186,7 @@ export async function DELETE(request: Request) {
 
     if (!body.id) {
       return NextResponse.json(
-        { error: "News ID à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆ" },
+        { error: "News ID जरूरी है" },
         { status: 400 }
       );
     }
@@ -182,13 +199,13 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "News delete à¤¹à¥‹ à¤—à¤ˆ",
+      message: "News delete हो गई",
     });
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { error: "News delete à¤•à¤°à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¸à¤®à¤¸à¥à¤¯à¤¾ à¤¹à¥à¤ˆ" },
+      { error: "News delete करने में समस्या हुई" },
       { status: 500 }
     );
   }

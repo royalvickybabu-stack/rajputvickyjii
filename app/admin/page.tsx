@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import RichTextEditor from "@/components/RichTextEditor";
 
+type Reporter = {
+  id: number;
+  name: string;
+  designation: string | null;
+  isActive: boolean;
+};
+
 type News = {
   id: number;
+  reporterId: number | null;
   title: string;
   slug: string;
   content: string;
@@ -123,6 +131,8 @@ const categoryOptions = [
 
 export default function AdminPage() {
   const [news, setNews] = useState<News[]>([]);
+  const [reporters, setReporters] = useState<Reporter[]>([]);
+  const [reporterId, setReporterId] = useState<number | "">("");
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -150,6 +160,18 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [trendingFilter, setTrendingFilter] = useState("all");
 
+  async function loadReporters() {
+    try {
+      const response = await fetch("/api/admin/reporters", { cache: "no-store" });
+      const data = await response.json();
+      if (response.ok && Array.isArray(data)) {
+        setReporters(data.filter((item: Reporter) => item.isActive));
+      }
+    } catch (error) {
+      console.error("Reporter load error:", error);
+    }
+  }
+
   async function loadNews() {
     try {
       const response = await fetch("/api/news?admin=true");
@@ -166,10 +188,12 @@ export default function AdminPage() {
   useEffect(() => {
     setTimeout(() => {
       loadNews();
+      loadReporters();
     }, 0);
   }, []);
 
   function resetForm() {
+    setReporterId("");
     setTitle("");
     setSlug("");
     setCategory("");
@@ -335,6 +359,7 @@ export default function AdminPage() {
         language,
         isTrending,
         published,
+        reporterId: reporterId === "" ? null : reporterId,
       };
 
       const response = await fetch("/api/news", {
@@ -373,6 +398,7 @@ export default function AdminPage() {
 
   function editNews(item: News) {
     setEditingId(item.id);
+    setReporterId(item.reporterId ?? "");
 
     setTitle(item.title);
     setSlug(item.slug);
@@ -454,6 +480,7 @@ export default function AdminPage() {
           language: item.language,
           isTrending: item.isTrending,
           published: !item.published,
+          reporterId: item.reporterId,
         }),
       });
 
@@ -486,6 +513,7 @@ export default function AdminPage() {
           language: item.language,
           isTrending: !item.isTrending,
           published: item.published,
+          reporterId: item.reporterId,
         }),
       });
 
@@ -573,9 +601,6 @@ export default function AdminPage() {
                 {editingId ? "खबर Edit करें" : "नई खबर जोड़ें"}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Headline डालते ही English slug अपने आप बनेगा।
-              </p>
             </div>
 
             {editingId && (
@@ -660,6 +685,22 @@ export default function AdminPage() {
             </div>
 
             <div>
+              <label className="mb-2 block font-semibold">
+                News Reporter
+              </label>
+              <select
+                value={reporterId}
+                onChange={(e) => setReporterId(e.target.value ? Number(e.target.value) : "")}
+                className="mb-4 w-full cursor-pointer rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-red-500"
+              >
+                <option value="">Reporter चुनें (Optional)</option>
+                {reporters.map((reporter) => (
+                  <option key={reporter.id} value={reporter.id}>
+                    {reporter.name}{reporter.designation ? ` - ${reporter.designation}` : ""}
+                  </option>
+                ))}
+              </select>
+
               <label className="mb-2 block font-semibold">
                 News Image
               </label>
